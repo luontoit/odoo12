@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="product.variants_action" model="ir.actions.act_window">
+            <field name="name">Attribute Values</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.attribute.value</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="view_variants_tree_inherit_luonto" model="ir.ui.view">
+            <field name="name">product.attribute.value.tree</field>
+            <field name="model">product.attribute.value</field>
+            <field name="inherit_id" ref="product.variants_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree[1]" position="attributes">
+                    <attribute name="editable"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_attribute_value_form_luonto" model="ir.ui.view">
+            <field name="name">product.attribute.value.form</field>
+            <field name="model">product.attribute.value</field>
+            <field name="arch" type="xml">
+                <form string="Attribute Values">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="attribute_id"/>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="html_color"/>
+                                <field name="is_custom"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="attribute_value_ids" widget="many2many_tags"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="product_product_normal_form_view_inherit_luonto" model="ir.ui.view">
+            <field name="name">product.product.form.view.inherit.luonto</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='barcode']" position="after">
+                    <field name="is_exclude" invisible="0"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="sale_order_form_view_inherit_luonto" model="ir.ui.view">
+            <field name="name">	sale.order.form.view.inherit.luonto</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree[1]/field[@name='product_id']" position="attributes">
+                    <attribute name="domain">["&amp;",["sale_ok","=",True],["is_exclude","=",False]]</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

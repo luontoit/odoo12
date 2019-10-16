@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Layout and common templates -->
+        <template id="assets_frontend" inherit_id="website.assets_frontend" name="Shop Extended">
+            <xpath expr="link[last()]" position="after">
+                <script type="text/javascript" src="/luonto_product/static/src/js/shop_attribute.js" />
+            </xpath>
+        </template>
+    </data>
+</odoo>
