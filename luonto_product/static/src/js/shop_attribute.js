@@ -8,6 +8,38 @@ odoo.define('website_sale.new_cart', function (require) {
 
     web_editor_base.ready().then(function(){
         function hide_excluded_products(source_form, attr_id, event) {
+
+
+            function setOriginalSelect ($select) {
+                if ($select.data("originalHTML") == undefined) {
+                    $select.find('option').each( function() {
+                        $(this).removeAttr('class');
+                        $(this).removeAttr('selected');
+                    }
+                    );
+                    $select.data("originalHTML", $select.html());
+                } // If it's already there, don't re-set it
+                console.log($select.data("originalHTML"))
+            }
+
+            function removeOptions ($select, $options) {
+                setOriginalSelect($select);
+                $options.remove();
+            }
+
+            function restoreOptions ($select, cur_selected) {
+                var ogHTML = $select.data("originalHTML");
+                if (ogHTML != undefined) {
+                    $select.html(ogHTML);
+                }
+
+                $select.find('option').each( function() {
+                        if ($(this).val() == cur_selected) {
+                            $(this).attr("selected","selected");
+                        }
+                    });
+            }
+
             var $form = source_form;
             var values = [];
             var attr_id = parseInt(attr_id);
@@ -16,38 +48,37 @@ odoo.define('website_sale.new_cart', function (require) {
             var productTemplateId = parseInt($parent.find('.product_template_id').val());
 
             var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
-//            console.log(product_exclusions)
+            console.log("THESE ARE THE PROD EXCLUSIONS: ")
+            console.log(product_exclusions)
 
             // Grab the values that are currently selected
             var values = [];
-//            console.log("NEXT LOG: ")
+            var $productSelects = []
+            console.log("NEXT LOG: ")
             var variantsValuesSelectors = [
                 'input.js_variant_change:checked',
                 'select.js_variant_change'
             ];
             _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
-            values.push(+$(el).val());
+                values.push(+$(el).val());
+//                console.log($(el).attr('name'));
+                $(el).each(function(){
+                    setOriginalSelect($(this));
+//                    console.log($(this).data("originalHTML"))
+                    restoreOptions($(this), +$(el).val());
+
+                });
             });
-
-            $('input').parent().parent().show();
-            $('option').show();
-//            $('input').parent().parent().removeClass('hidden');
-//            $('option').removeClass('hidden');
-
-//            $('input').parent().parent().unwrap(".hide_ex");
-//            $('option').unwrap(".hide_ex");
-//            $('option').wrap("<div class='hide_ex'></span>");
 
             for (var val of values) {
                 var to_hide = product_exclusions[val]
+                console.log("THIS IS WHAT WE HIDE")
+                console.log(to_hide)
                 // Hide all related attribute values
+//                setOriginalSelect()
                 for (var h of to_hide) {
-                    $('input[value="'+ h +'"]').parent().parent().hide();
-                    $('option[value="'+ h +'"]').hide();
-//                    $('input[value="'+ h +'"]').parent().parent().wrap("<span class='hide_ex'></span>");
-//                    $('option[value="'+ h +'"]').wrap("<span class='hide_ex'></span>");
-//                    $('input[value="'+ h +'"]').parent().parent().addClass('hidden');
-//                    $('option[value="'+ h +'"]').addClass('hidden');
+                    $('input[value="'+ h +'"]').remove();
+                    $('option[value="'+ h +'"]').remove();
                 }
             }
         } // End hide_excluded_products
@@ -70,8 +101,5 @@ odoo.define('website_sale.new_cart', function (require) {
         });
 
     });
-
-
-
 
 });

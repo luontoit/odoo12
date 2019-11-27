@@ -3,6 +3,7 @@
 from odoo.exceptions import UserError, ValidationError
 from odoo import api, fields, models, _
 
+
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
@@ -11,7 +12,6 @@ class ProductProduct(models.Model):
 
 
 class ProductAttributeValue(models.Model):
-
     _inherit = "product.attribute.value"
 
     attribute_value_ids = fields.Many2many(
