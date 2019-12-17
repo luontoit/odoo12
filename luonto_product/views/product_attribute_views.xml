@@ -38,6 +38,7 @@
                         </group>
                         <group>
                             <group>
+                                <field name="is_not_buy"/>
                                 <field name="attribute_value_ids" widget="many2many_tags"/>
                             </group>
                         </group>

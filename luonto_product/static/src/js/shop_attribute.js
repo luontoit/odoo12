@@ -19,7 +19,7 @@ odoo.define('website_sale.new_cart', function (require) {
                     );
                     $select.data("originalHTML", $select.html());
                 } // If it's already there, don't re-set it
-                console.log($select.data("originalHTML"))
+//                console.log($select.data("originalHTML"))
             }
 
             function removeOptions ($select, $options) {
@@ -51,6 +51,10 @@ odoo.define('website_sale.new_cart', function (require) {
             console.log("THESE ARE THE PROD EXCLUSIONS: ")
             console.log(product_exclusions)
 
+            var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy')
+            console.log("These are the no_buy var:")
+            console.log(no_buy_variants)
+
             // Grab the values that are currently selected
             var values = [];
             var $productSelects = []
@@ -72,8 +76,8 @@ odoo.define('website_sale.new_cart', function (require) {
 
             for (var val of values) {
                 var to_hide = product_exclusions[val]
-                console.log("THIS IS WHAT WE HIDE")
-                console.log(to_hide)
+//                console.log("THIS IS WHAT WE HIDE")
+//                console.log(to_hide)
                 // Hide all related attribute values
 //                setOriginalSelect()
                 for (var h of to_hide) {
@@ -81,6 +85,18 @@ odoo.define('website_sale.new_cart', function (require) {
                     $('option[value="'+ h +'"]').remove();
                 }
             }
+
+//            var findNoBuy = function (values, no_buy_variants) {
+//                return no_buy_variants.some(function (v) {
+//                    return values.indexOf(v) >= 0;
+//                });
+//            };
+
+            var findNoBuy = no_buy_variants.some(r=> values.indexOf(r) >= 0)
+
+            console.log("IF no buy selected: ")
+            console.log(findNoBuy)
+
         } // End hide_excluded_products
 
 
