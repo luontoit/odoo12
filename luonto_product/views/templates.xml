@@ -124,10 +124,10 @@
             </xpath>
         </template>
 
-        <template id="product_inherit_luonto" inherit_id="website_sale.product">
-            <xpath expr="//p[hasclass('css_not_available_msg', 'alert')]" position="before">
-                <p t-if="True" class="css_not_available_msg_luonto alert alert-warning">This combination does not exist.</p>
-            </xpath>
-        </template>
+<!--        <template id="product_inherit_luonto" inherit_id="website_sale.product">-->
+<!--            <xpath expr="//p[hasclass('css_not_available_msg', 'alert')]" position="before">-->
+<!--                <p t-if="True" class="css_not_available_msg_luonto alert alert-warning">This combination does not exist.</p>-->
+<!--            </xpath>-->
+<!--        </template>-->
     </data>
 </odoo>
