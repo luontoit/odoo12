@@ -16,8 +16,10 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def get_attr_no_buy(self):
-        return self.attribute_line_ids.mapped('product_template_value_ids').filtered(
+        ids = self.attribute_line_ids.mapped('product_template_value_ids').filtered(
             lambda a: a.product_attribute_value_id.is_not_buy).ids
+
+        return {'no_buys': ids}
 
 
 class ProductAttributeValue(models.Model):

@@ -4,15 +4,17 @@
         <!-- Layout and common templates -->
         <template id="assets_frontend" inherit_id="website.assets_frontend" name="Shop Extended">
             <xpath expr="link[last()]" position="after">
+                <link rel="stylesheet" type="text/css" href="/luonto_product/static/src/css/luonto_style.css"/>
                 <script type="text/javascript" src="/luonto_product/static/src/js/shop_attribute.js"/>
             </xpath>
         </template>
 
         <template id="variants_inherit_luonto" inherit_id="sale.variants" name="Variants Extended">
             <xpath expr="//ul" position="replace">
+                <t t-set="no_buy_attrs" t-value="product.get_attr_no_buy()"/>
                 <ul t-attf-class="list-unstyled js_add_cart_variants #{ul_class}"
                     t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)"
-                    t-att-data-no_buy="product.get_attr_no_buy()">
+                    t-att-data-no_buy="json.dumps(no_buy_attrs)">
                     <t t-foreach="product._get_valid_product_template_attribute_lines()" t-as="variant_id">
                         <!-- Attributes selection is hidden if there is only one value available and it's not a custom value -->
                         <li t-att-data-attribute_id="variant_id.attribute_id.id"
@@ -119,6 +121,12 @@
                         </li>
                     </t>
                 </ul>
+            </xpath>
+        </template>
+
+        <template id="product_inherit_luonto" inherit_id="website_sale.product">
+            <xpath expr="//p[hasclass('css_not_available_msg', 'alert')]" position="before">
+                <p t-if="True" class="css_not_available_msg_luonto alert alert-warning">This combination does not exist.</p>
             </xpath>
         </template>
     </data>

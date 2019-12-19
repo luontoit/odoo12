@@ -51,7 +51,7 @@ odoo.define('website_sale.new_cart', function (require) {
             console.log("THESE ARE THE PROD EXCLUSIONS: ")
             console.log(product_exclusions)
 
-            var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy')
+            var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys
             console.log("These are the no_buy var:")
             console.log(no_buy_variants)
 
@@ -75,6 +75,10 @@ odoo.define('website_sale.new_cart', function (require) {
             });
 
             for (var val of values) {
+                if (no_buy_variants.includes(val)){
+                    $('input[value="'+ val +'"]').addClass('no_buy_grey')
+                    $('option[value="'+ val +'"]').addClass('no_buy_grey')
+                };
                 var to_hide = product_exclusions[val]
 //                console.log("THIS IS WHAT WE HIDE")
 //                console.log(to_hide)
@@ -97,18 +101,18 @@ odoo.define('website_sale.new_cart', function (require) {
             console.log("IF no buy selected: ")
             console.log(findNoBuy)
 
+            $parent.find('#add_to_cart').removeClass('stop_buy')
+
+            if (findNoBuy) {
+                    $parent.find('#add_to_cart').addClass('stop_buy')
+                };
+
         } // End hide_excluded_products
 
-
-        $('input[type="radio"].js_variant_change').on('change', function(event) {
+        $('input[type="radio"].js_variant_change, select.js_variant_change').on('change', function(event) {
             var $form = $(this).closest('form');
             hide_excluded_products($form, $(this).val(), event);
 
-        });
-
-        $('select.js_variant_change').on("change",function(event){
-            var $form = $(this).closest('form');
-            hide_excluded_products($form, $(this).val(), event);
         });
 
         // Trigger the change everytime Product page is loaded

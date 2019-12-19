@@ -1,0 +1,9 @@
+.stop_buy {
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+
+.no_buy_grey {
+  color: #ccc;
+}
