@@ -1,13 +1,51 @@
-odoo.define('website_sale.new_cart', function (require) {
-"use strict";
-    $("form.form-inline").addClass("pull-left");
-    var cart = require('website_sale.cart');
-    var web_editor_base = require('web_editor.base');
-    var ajax = require("web.ajax")
-    var core = require("web.core")
+odoo.define('luonto_product.ProductConfiguratorFormRendererLuonto', function (require) {
+'use strict';
 
-    web_editor_base.ready().then(function(){
-        function hide_excluded_products(source_form, attr_id, event) {
+var ProductConfiguratorFormRenderer = require('sale.ProductConfiguratorFormRenderer');
+var OptionalProductsModal = require('sale.OptionalProductsModal');
+var ProductConfiguratorFormController = require('sale.ProductConfiguratorFormController');
+var ProductConfiguratorMixin = require('sale.ProductConfiguratorMixin');
+
+
+
+console.log("DO we get here??"); // This gets triggered
+
+var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.include({
+    /**
+     * @override
+     */
+    start: function () {
+        this._super.apply(this, arguments);
+        console.log("Are we inside start??"); // Not triggered
+
+        var $temp = this.$el.find('input[name="add_qty"]');
+
+        $temp.addClass("testing-here");
+
+        console.log($temp);
+    },
+//        /**
+//     * @override
+//     */
+//    _onChangeCombination:function (ev, $parent, combination) {
+//        this._super.apply(this, arguments);
+//        console.log("Are we inside onchange combination??"); // Not triggered
+//    },
+
+    _onFieldChanged: function (event) {
+        this._super.apply(this, arguments);
+
+        console.log("inside onfield change");
+    },
+
+    triggerVariantChange: function ($container) {
+        this._super.apply(this, arguments);
+        console.log("HELLO var change??");
+    },
+
+    _checkExclusions: function ($parent, combination) {
+        this._super.apply(this, arguments);
+        function hide_excluded_products($parent) {
             function setOriginalSelect ($select) {
                 if ($select.data("originalHTML") == undefined) {
                     $select.find('option').each( function() {
@@ -37,13 +75,7 @@ odoo.define('website_sale.new_cart', function (require) {
                     });
             }
 
-            var $form = source_form;
             var values = [];
-            var attr_id = parseInt(attr_id);
-
-            var $parent = $(event.target).closest('.js_product');
-            var productTemplateId = parseInt($parent.find('.product_template_id').val());
-
             var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
             console.log("THESE ARE THE PROD EXCLUSIONS: ")
             console.log(product_exclusions)
@@ -54,8 +86,7 @@ odoo.define('website_sale.new_cart', function (require) {
 
             // Grab the values that are currently selected
             var values = [];
-            var $productSelects = []
-//            console.log("NEXT LOG: ")
+            console.log("NEXT LOG: ")
             var variantsValuesSelectors = [
                 'input.js_variant_change:checked',
                 'select.js_variant_change'
@@ -63,9 +94,8 @@ odoo.define('website_sale.new_cart', function (require) {
             _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
                 values.push(+$(el).val());
                 $(el).each(function(){
-                    setOriginalSelect($(this))
+                    setOriginalSelect($(this));
                     restoreOptions($(this), +$(el).val());
-
                 });
             });
 
@@ -83,6 +113,10 @@ odoo.define('website_sale.new_cart', function (require) {
             }
 
             var findNoBuy = no_buy_variants.some(r=> values.indexOf(r) >= 0)
+
+            console.log("IF no buy selected: ")
+            console.log(findNoBuy)
+
             $parent.find('#add_to_cart').removeClass('stop_buy')
 
             if (findNoBuy) {
@@ -90,18 +124,13 @@ odoo.define('website_sale.new_cart', function (require) {
                 };
 
         } // End hide_excluded_products
+        hide_excluded_products($parent)
+    },
 
-        $('input[type="radio"].js_variant_change, select.js_variant_change').on('change', function(event) {
-            var $form = $(this).closest('form');
-            hide_excluded_products($form, $(this).val(), event);
 
-        });
+});
 
-        // Trigger the change everytime Product page is loaded
-        $( document ).ready(function() {
-            $('input[type="radio"].js_variant_change, select.js_variant_change').trigger('change');
-        });
 
-    });
+return ProductConfiguratorFormRendererLuonto;
 
 });

@@ -2,10 +2,18 @@
 <odoo>
     <data>
         <!-- Layout and common templates -->
-        <template id="assets_frontend" inherit_id="website.assets_frontend" name="Shop Extended">
+        <template id="assets_frontend_luonto" inherit_id="website.assets_frontend" name="Shop Extended">
             <xpath expr="link[last()]" position="after">
                 <link rel="stylesheet" type="text/css" href="/luonto_product/static/src/css/luonto_style.css"/>
+            </xpath>
+            <xpath expr="script[last()]" position="after">
                 <script type="text/javascript" src="/luonto_product/static/src/js/shop_attribute.js"/>
+            </xpath>
+        </template>
+
+        <template id="assets_backend_luonto" inherit_id="sale.assets_backend_inherit_sale" name="Configurator Extended">
+            <xpath expr="script[last()]" position="after">
+                <script type="text/javascript" src="/luonto_product/static/src/js/product_configurator.js"/>
             </xpath>
         </template>
 
@@ -36,25 +44,25 @@
                                                 t-att-data-is_custom="value_id.is_custom"
                                                 t-att-selected="first_possible_combination[variant_id_index] == value_id">
                                             <span t-field="value_id.name"/>
-                                            <span t-if="value_id.price_extra" class="badge badge-pill badge-secondary">
-                                                <!--
-                                                    price_extra is displayed as catalog price instead of
-                                                    price after pricelist because it is impossible to
-                                                    compute. Indeed, the pricelist rule might depend on the
-                                                    selected variant, so the price_extra will be different
-                                                    depending on the selected combination. The price of an
-                                                    attribute is therefore variable and it's not very
-                                                    accurate to display it.
-                                                 -->
-                                                <t t-esc="value_id.price_extra > 0 and '+' or '-'"/>
-                                                <span t-esc="abs(value_id.price_extra)" class="variant_price_extra"
-                                                      style="white-space: nowrap;"
-                                                      t-options='{
-                                                "widget": "monetary",
-                                                "from_currency": product.currency_id,
-                                                "display_currency": (pricelist or product).currency_id
-                                            }'/>
-                                            </span>
+<!--                                            <span t-if="value_id.price_extra" class="badge badge-pill badge-secondary">-->
+<!--                                                &lt;!&ndash;-->
+<!--                                                    price_extra is displayed as catalog price instead of-->
+<!--                                                    price after pricelist because it is impossible to-->
+<!--                                                    compute. Indeed, the pricelist rule might depend on the-->
+<!--                                                    selected variant, so the price_extra will be different-->
+<!--                                                    depending on the selected combination. The price of an-->
+<!--                                                    attribute is therefore variable and it's not very-->
+<!--                                                    accurate to display it.-->
+<!--                                                 &ndash;&gt;-->
+<!--                                                <t t-esc="value_id.price_extra > 0 and '+' or '-'"/>-->
+<!--                                                <span t-esc="abs(value_id.price_extra)" class="variant_price_extra"-->
+<!--                                                      style="white-space: nowrap;"-->
+<!--                                                      t-options='{-->
+<!--                                                "widget": "monetary",-->
+<!--                                                "from_currency": product.currency_id,-->
+<!--                                                "display_currency": (pricelist or product).currency_id-->
+<!--                                            }'/>-->
+<!--                                            </span>-->
                                         </option>
                                     </t>
                                 </select>
@@ -77,19 +85,19 @@
                                                            t-att-data-is_custom="value_id.is_custom"/>
                                                     <div class="radio_input_value">
                                                         <span t-field="value_id.name"/>
-                                                        <span class="badge badge-pill badge-secondary"
-                                                              t-if="value_id.price_extra">
+<!--                                                        <span class="badge badge-pill badge-secondary"-->
+<!--                                                              t-if="value_id.price_extra">-->
                                                             <!-- see note above about price_extra -->
-                                                            <t t-esc="value_id.price_extra > 0 and '+' or '-'"/>
-                                                            <span t-esc="abs(value_id.price_extra)"
-                                                                  class="variant_price_extra"
-                                                                  style="white-space: nowrap;"
-                                                                  t-options='{
-                                                            "widget": "monetary",
-                                                            "from_currency": product.currency_id,
-                                                            "display_currency": (pricelist or product).currency_id
-                                                        }'/>
-                                                        </span>
+<!--                                                            <t t-esc="value_id.price_extra > 0 and '+' or '-'"/>-->
+<!--                                                            <span t-esc="abs(value_id.price_extra)"-->
+<!--                                                                  class="variant_price_extra"-->
+<!--                                                                  style="white-space: nowrap;"-->
+<!--                                                                  t-options='{-->
+<!--                                                            "widget": "monetary",-->
+<!--                                                            "from_currency": product.currency_id,-->
+<!--                                                            "display_currency": (pricelist or product).currency_id-->
+<!--                                                        }'/>-->
+<!--                                                        </span>-->
                                                     </div>
                                                 </div>
                                             </label>
