@@ -2,9 +2,7 @@
 
 from odoo.exceptions import UserError, ValidationError
 from odoo import api, fields, models, _
-from odoo import registry
 import datetime
-
 
 
 class ProductProduct(models.Model):
@@ -33,7 +31,8 @@ class ProductAttributeValue(models.Model):
         relation='sub_attr',
         column1='parent_attr',
         column2='child_attr',
-        string="Sub Attribute Values")
+        string="Sub Attribute Values",
+        store=True)
 
     is_not_buy = fields.Boolean(string="Is Not Buyable",
                                 help="Check this box to restrict customer from selecting and "
@@ -85,6 +84,8 @@ class ProductAttributeValue(models.Model):
             # product.template.attribute.values that might need to be excluded (color:blue, color:red, color:black)
             # filter:  possible(ex: color:red) not a sub attribute of the need's attribute value(fabric: poly)
             # filter2: filter out if possible is already an exclusion
+            #TODO: check case for parent1 > child1 > grandchild1
+            # Do we need exclusions for parent1 and grandchild1??
             for possible in possible_exclusion.filtered(lambda p: p.product_attribute_value_id not in need.product_attribute_value_id.attribute_value_ids and p not in need.exclude_for.value_ids):
                 # if possible.product_attribute_value_id not in need.product_attribute_value_id.attribute_value_ids:
                 has_tmpl_line = need.exclude_for.filtered(lambda x: x.product_tmpl_id == prod)
@@ -104,6 +105,8 @@ class ProductAttributeValue(models.Model):
                         })]
                     })
                 # Handle reverse exclusion
+                # ex: Poly not only exclude red but also red must exclude poly
+                # This is for the UI purpose
                 rev_has_tmpl_line = possible.exclude_for.filtered(lambda x: x.product_tmpl_id == prod)
                 if rev_has_tmpl_line:
                     possible.write({
@@ -216,7 +219,7 @@ class ProductAttributeValue(models.Model):
         return attr_vals
 
     @api.model
-    def create_attr_val_exclusions(self, use_new_cursor=True):
+    def create_attr_val_exclusions(self):
         """Function that begins automatic attribute value addition to products based on sub attribute values
 
         Args:
@@ -231,11 +234,13 @@ class ProductAttributeValue(models.Model):
         #     self = self.with_env(self.env(cr=cr))
 
         # Grab all attribute values that has been modified in the last day and had sub att val
-        attr_vals = self.env['product.attribute.value'].search([('attribute_value_ids', '!=', False),
-                                                                ('write_date', '>', (datetime.datetime.now() -
-                                                                                     datetime.timedelta(
-                                                                                         days=1)).strftime(
-                                                                    '%Y-%m-%d %H:%M:%S'))])
+        # attr_vals = self.env['product.attribute.value'].search([('attribute_value_ids', '!=', False),
+        #                                                         ('write_date', '>', (datetime.datetime.now() -
+        #                                                                              datetime.timedelta(
+        #                                                                                  days=1)).strftime(
+        #                                                             '%Y-%m-%d %H:%M:%S'))])
+        attr_vals = self.env['product.attribute.value'].search([('attribute_value_ids', '!=', False)])
+
         print("Recently mod attr vals: " + str(attr_vals.name_get()))
 
         attr_vals = self.prepare_child_attr_val(attr_vals)
