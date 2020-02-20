@@ -33,7 +33,6 @@ for record in env['product.product'].search([]):
             <field name="doall" eval="False"/>
         </record>
 
-
         <record id="schedule_action_update_attributes_luonto" model="ir.cron">
             <field name="name">Attribute: Update Attribute Values via Sub Attribute Values</field>
             <field name="model_id" ref="product.model_product_attribute_value"/>

@@ -43,19 +43,12 @@ odoo.define('website_sale.new_cart', function (require) {
 
             var $parent = $(event.target).closest('.js_product');
             var productTemplateId = parseInt($parent.find('.product_template_id').val());
-
             var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
-            console.log("THESE ARE THE PROD EXCLUSIONS: ")
-            console.log(product_exclusions)
-
             var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys
-            console.log("These are the no_buy var:")
-            console.log(no_buy_variants)
 
             // Grab the values that are currently selected
             var values = [];
             var $productSelects = []
-//            console.log("NEXT LOG: ")
             var variantsValuesSelectors = [
                 'input.js_variant_change:checked',
                 'select.js_variant_change'

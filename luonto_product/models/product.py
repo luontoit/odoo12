@@ -19,7 +19,6 @@ class ProductTemplate(models.Model):
     def get_attr_no_buy(self):
         ids = self.attribute_line_ids.mapped('product_template_value_ids').filtered(
             lambda a: a.product_attribute_value_id.is_not_buy).ids
-
         return {'no_buys': ids}
 
 
@@ -84,8 +83,8 @@ class ProductAttributeValue(models.Model):
             # product.template.attribute.values that might need to be excluded (color:blue, color:red, color:black)
             # filter:  possible(ex: color:red) not a sub attribute of the need's attribute value(fabric: poly)
             # filter2: filter out if possible is already an exclusion
-            #TODO: check case for parent1 > child1 > grandchild1
-            # Do we need exclusions for parent1 and grandchild1??
+            #TODO future: check case for parent1 > child1 > grandchild1
+            # Do we need exclusions for parent1 and grandchild1
             for possible in possible_exclusion.filtered(lambda p: p.product_attribute_value_id not in need.product_attribute_value_id.attribute_value_ids and p not in need.exclude_for.value_ids):
                 # if possible.product_attribute_value_id not in need.product_attribute_value_id.attribute_value_ids:
                 has_tmpl_line = need.exclude_for.filtered(lambda x: x.product_tmpl_id == prod)
@@ -135,7 +134,6 @@ class ProductAttributeValue(models.Model):
             None
 
         """
-        print("Adding lines to the values for " + str(prod.name_get()))
         # add sub attr val to attr lines IF the line for that attribute exists
         # for attr_id(ex: color) in attributes
         for attr_id in tmpl_attr.keys():
@@ -173,9 +171,11 @@ class ProductAttributeValue(models.Model):
             None
 
         """
+        # TODO Future?: make prefetch=false
+        # TODO Future?: consider call search/search_read
+        #
         # prefetching exclusion env for later
         combination_exclude = self.env['product.template.attribute.exclusion']
-        print("looking at attr lines.....for " + str(main_attr.name_get()))
         # Add the sub attr val to the current attribute value(main_attr)
         # for line all attr lines on the a product template
         for line in attr_lines:
@@ -187,13 +187,10 @@ class ProductAttributeValue(models.Model):
 
             # create the variants(prod.prod) for that prod.temp manually
             # using odoo function
-            print("Creating the variants for " +str(prod.name_get()))
             prod.create_variant_ids()
 
             # create the exclusions on the attribute values
-            print("Creating the exclusions")
             self.create_ex_attr_val(prod, main_attr, tmpl_attr)
-            print("FINISH Creating the exclusions")
             # Set exclusion boolean on the product variant if attribute values align
             for variant in prod.product_variant_ids:
                 values_ids = variant.product_template_attribute_value_ids
@@ -202,7 +199,6 @@ class ProductAttributeValue(models.Model):
                 is_ex = combination_exclude.search(domain)
                 if is_ex:
                     variant.write({'is_exclude': True})
-            print("FINISH setting bool")
 
     def prepare_child_attr_val(self, attr_vals):
         # Loop through all the current attribute values in the recordset
@@ -229,23 +225,9 @@ class ProductAttributeValue(models.Model):
             None
 
         """
-        # if use_new_cursor:
-        #     cr = registry(self._cr.dbname).cursor()
-        #     self = self.with_env(self.env(cr=cr))
-
-        # Grab all attribute values that has been modified in the last day and had sub att val
-        # attr_vals = self.env['product.attribute.value'].search([('attribute_value_ids', '!=', False),
-        #                                                         ('write_date', '>', (datetime.datetime.now() -
-        #                                                                              datetime.timedelta(
-        #                                                                                  days=1)).strftime(
-        #                                                             '%Y-%m-%d %H:%M:%S'))])
         attr_vals = self.env['product.attribute.value'].search([('attribute_value_ids', '!=', False)])
-
-        print("Recently mod attr vals: " + str(attr_vals.name_get()))
-
-        attr_vals = self.prepare_child_attr_val(attr_vals)
-
-        print("All Child mod attr vals: " + str(attr_vals.name_get()))
+        # Recursion only needed with past filter
+        # attr_vals = self.prepare_child_attr_val(attr_vals)
 
         for main_attr_val in attr_vals:
             tmpl_attr = {}
@@ -253,8 +235,6 @@ class ProductAttributeValue(models.Model):
             # ex: {color.id: [blue.id, black.id]}
             for sub_attr in main_attr_val.attribute_value_ids:
                 tmpl_attr.setdefault(sub_attr.attribute_id.id, []).append(sub_attr.id)
-            print("for current main attr val: " + str(main_attr_val.name_get()))
-            print("attr dict: " + str(tmpl_attr))
 
             # All attribute lines with current attribute value(main_attr)
             # lines are on product.template to generate product.template.attribute.value
@@ -276,17 +256,10 @@ class ProductAttributeValue(models.Model):
             None
 
         """
-        # if use_new_cursor:
-        #     cr = registry(self._cr.dbname).cursor()
-        #     self = self.with_env(self.env(cr=cr))
-
         # Grab all attribute values that has been modified in the last day and had sub att val
         attr_vals = records
-        print("Recently mod attr vals: " + str(attr_vals.name_get()))
 
         attr_vals = self.prepare_child_attr_val(attr_vals)
-
-        print("All Child mod attr vals: " + str(attr_vals.name_get()))
 
         for main_attr_val in attr_vals:
             tmpl_attr = {}
@@ -294,8 +267,6 @@ class ProductAttributeValue(models.Model):
             # ex: {color.id: [blue.id, black.id]}
             for sub_attr in main_attr_val.attribute_value_ids:
                 tmpl_attr.setdefault(sub_attr.attribute_id.id, []).append(sub_attr.id)
-            print("for current main attr val: " + str(main_attr_val.name_get()))
-            print("attr dict: " + str(tmpl_attr))
 
             # All attribute lines with current attribute value(main_attr)
             # lines are on product.template to generate product.template.attribute.value

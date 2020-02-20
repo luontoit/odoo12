@@ -44,25 +44,6 @@
                                                 t-att-data-is_custom="value_id.is_custom"
                                                 t-att-selected="first_possible_combination[variant_id_index] == value_id">
                                             <span t-field="value_id.name"/>
-<!--                                            <span t-if="value_id.price_extra" class="badge badge-pill badge-secondary">-->
-<!--                                                &lt;!&ndash;-->
-<!--                                                    price_extra is displayed as catalog price instead of-->
-<!--                                                    price after pricelist because it is impossible to-->
-<!--                                                    compute. Indeed, the pricelist rule might depend on the-->
-<!--                                                    selected variant, so the price_extra will be different-->
-<!--                                                    depending on the selected combination. The price of an-->
-<!--                                                    attribute is therefore variable and it's not very-->
-<!--                                                    accurate to display it.-->
-<!--                                                 &ndash;&gt;-->
-<!--                                                <t t-esc="value_id.price_extra > 0 and '+' or '-'"/>-->
-<!--                                                <span t-esc="abs(value_id.price_extra)" class="variant_price_extra"-->
-<!--                                                      style="white-space: nowrap;"-->
-<!--                                                      t-options='{-->
-<!--                                                "widget": "monetary",-->
-<!--                                                "from_currency": product.currency_id,-->
-<!--                                                "display_currency": (pricelist or product).currency_id-->
-<!--                                            }'/>-->
-<!--                                            </span>-->
                                         </option>
                                     </t>
                                 </select>
@@ -85,19 +66,6 @@
                                                            t-att-data-is_custom="value_id.is_custom"/>
                                                     <div class="radio_input_value">
                                                         <span t-field="value_id.name"/>
-<!--                                                        <span class="badge badge-pill badge-secondary"-->
-<!--                                                              t-if="value_id.price_extra">-->
-                                                            <!-- see note above about price_extra -->
-<!--                                                            <t t-esc="value_id.price_extra > 0 and '+' or '-'"/>-->
-<!--                                                            <span t-esc="abs(value_id.price_extra)"-->
-<!--                                                                  class="variant_price_extra"-->
-<!--                                                                  style="white-space: nowrap;"-->
-<!--                                                                  t-options='{-->
-<!--                                                            "widget": "monetary",-->
-<!--                                                            "from_currency": product.currency_id,-->
-<!--                                                            "display_currency": (pricelist or product).currency_id-->
-<!--                                                        }'/>-->
-<!--                                                        </span>-->
                                                     </div>
                                                 </div>
                                             </label>
@@ -131,11 +99,5 @@
                 </ul>
             </xpath>
         </template>
-
-<!--        <template id="product_inherit_luonto" inherit_id="website_sale.product">-->
-<!--            <xpath expr="//p[hasclass('css_not_available_msg', 'alert')]" position="before">-->
-<!--                <p t-if="True" class="css_not_available_msg_luonto alert alert-warning">This combination does not exist.</p>-->
-<!--            </xpath>-->
-<!--        </template>-->
     </data>
 </odoo>

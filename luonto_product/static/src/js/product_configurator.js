@@ -6,41 +6,21 @@ var OptionalProductsModal = require('sale.OptionalProductsModal');
 var ProductConfiguratorFormController = require('sale.ProductConfiguratorFormController');
 var ProductConfiguratorMixin = require('sale.ProductConfiguratorMixin');
 
-
-
-console.log("DO we get here??"); // This gets triggered
-
 var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.include({
     /**
      * @override
      */
     start: function () {
         this._super.apply(this, arguments);
-        console.log("Are we inside start??"); // Not triggered
-
         var $temp = this.$el.find('input[name="add_qty"]');
-
-        $temp.addClass("testing-here");
-
-        console.log($temp);
     },
-//        /**
-//     * @override
-//     */
-//    _onChangeCombination:function (ev, $parent, combination) {
-//        this._super.apply(this, arguments);
-//        console.log("Are we inside onchange combination??"); // Not triggered
-//    },
 
     _onFieldChanged: function (event) {
         this._super.apply(this, arguments);
-
-        console.log("inside onfield change");
     },
 
     triggerVariantChange: function ($container) {
         this._super.apply(this, arguments);
-        console.log("HELLO var change??");
     },
 
     _checkExclusions: function ($parent, combination) {
@@ -67,7 +47,6 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
                 if (ogHTML != undefined) {
                     $select.html(ogHTML);
                 }
-
                 $select.find('option').each( function() {
                         if ($(this).val() == cur_selected) {
                             $(this).attr("selected","selected");
@@ -77,16 +56,10 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
 
             var values = [];
             var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
-            console.log("THESE ARE THE PROD EXCLUSIONS: ")
-            console.log(product_exclusions)
-
             var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys
-            console.log("These are the no_buy var:")
-            console.log(no_buy_variants)
 
             // Grab the values that are currently selected
             var values = [];
-            console.log("NEXT LOG: ")
             var variantsValuesSelectors = [
                 'input.js_variant_change:checked',
                 'select.js_variant_change'
@@ -113,23 +86,15 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
             }
 
             var findNoBuy = no_buy_variants.some(r=> values.indexOf(r) >= 0)
-
-            console.log("IF no buy selected: ")
-            console.log(findNoBuy)
-
             $parent.find('#add_to_cart').removeClass('stop_buy')
 
             if (findNoBuy) {
                     $parent.find('#add_to_cart').addClass('stop_buy')
                 };
-
         } // End hide_excluded_products
         hide_excluded_products($parent)
     },
-
-
 });
-
 
 return ProductConfiguratorFormRendererLuonto;
 
