@@ -18,12 +18,12 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def get_attr_no_buy(self):
-        ids = self.attribute_line_ids.mapped('product_template_value_ids').filtered(
+        ids = self.attribute_line_ids.mapped('product_te9mplate_value_ids').filtered(
             lambda a: a.product_attribute_value_id.is_not_buy).ids
         return {'no_buys': ids}
 
     @api.multi
-    def get_exclusions_recursive(self, attr_val, val_by_attr, exclusions):
+    def get_exclusions_recursive(self, attr_val, val_by_attr):
         print(val_by_attr)
         possible = []
         # get all possible exclusion values of current val's children
@@ -31,24 +31,47 @@ class ProductTemplate(models.Model):
             possible += val_by_attr[x]
 
         # get all possible exclusion values not themselves children of the current val
-        ex = [x for x in possible if x not in attr_val.attribute_value_ids.ids]
+        ex = {x for x in possible if x not in attr_val.attribute_value_ids.ids}
         # update the exclusion set
-        exclusions.update(ex)
+
+        child_ex = []
+        # sub_ex = set()
         # for all attribute values in children attribute values
         for val in attr_val.attribute_value_ids:
             # if they themselves have children
             if val.attribute_value_ids:
                 # recursively search for exclusions
-                return self.get_exclusions_recursive(val, val_by_attr, exclusions)
-        return exclusions
+                child_ex.append(self.get_exclusions_recursive(val, val_by_attr))
+        if child_ex:
+            ex.update(set.intersection(*child_ex))
+            # exclusions.update(sub_ex)
+        # sub_ex.update(ex)
+        # TODO: check why updating and returning exclusions
+        return ex
+
+    # recursive algorithm
+    # arg = attr_val, val_by_attr, exclusions
+
+    # for each child attr,
+    #
+
+    # return all children's exclusions
+    # aka node = blue > return {M, L, XL}
+    # aka note = black > return {XS, XL}
+    # want > {XL}
 
     @api.multi
     def get_exclusions(self, attribute_values, val_by_attr):
+        #dictionary of sets
         all_ex = {}
         # For all attribute values with child attribute values
         for val in attribute_values.filtered(lambda v: v.attribute_value_ids):
             # Create dict with key = current attr val's id and value = set of exclusions
-            all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
+            # all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
+            all_ex.setdefault(val.id, set()).update(self.get_exclusions_recursive(val, val_by_attr))
+            # mirror the children
+            for x in all_ex[val.id]:
+                all_ex.setdefault(x, set()).add(val.id)
         return all_ex
 
     @api.multi
