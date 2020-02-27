@@ -2,8 +2,9 @@
 
 from odoo.exceptions import UserError, ValidationError
 from odoo import api, fields, models, _
+import pprint
 import datetime
-
+pp = pprint.PrettyPrinter(indent=4)
 
 class ProductProduct(models.Model):
     _inherit = "product.product"
@@ -20,6 +21,57 @@ class ProductTemplate(models.Model):
         ids = self.attribute_line_ids.mapped('product_template_value_ids').filtered(
             lambda a: a.product_attribute_value_id.is_not_buy).ids
         return {'no_buys': ids}
+
+    @api.multi
+    def get_exclusions_recursive(self, attr_val, val_by_attr, exclusions):
+        print(val_by_attr)
+        possible = []
+        # get all possible exclusion values of current val's children
+        for x in attr_val.attribute_value_ids.mapped('attribute_id').ids:
+            possible += val_by_attr[x]
+
+        # get all possible exclusion values not themselves children of the current val
+        ex = [x for x in possible if x not in attr_val.attribute_value_ids.ids]
+        # update the exclusion set
+        exclusions.update(ex)
+        # for all attribute values in children attribute values
+        for val in attr_val.attribute_value_ids:
+            # if they themselves have children
+            if val.attribute_value_ids:
+                # recursively search for exclusions
+                return self.get_exclusions_recursive(val, val_by_attr, exclusions)
+        return exclusions
+
+    @api.multi
+    def get_exclusions(self, attribute_values, val_by_attr):
+        all_ex = {}
+        # For all attribute values with child attribute values
+        for val in attribute_values.filtered(lambda v: v.attribute_value_ids):
+            # Create dict with key = current attr val's id and value = set of exclusions
+            all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
+        return all_ex
+
+    @api.multi
+    def get_flat_exclusions(self):
+
+        attr_vals = self.attribute_line_ids.mapped('value_ids')
+        # Dict of key = attribute and value = attribute value
+        # ex: {color.id: [red.id, blue.id, black.id]}
+        val_by_attr = {}
+        sub_attr = {}
+        for main_attr_val in attr_vals:
+            val_by_attr.setdefault(main_attr_val.attribute_id.id, []).append(main_attr_val.id)
+            sub_attr[main_attr_val.id] = main_attr_val.attribute_value_ids.ids
+        pp.pprint(val_by_attr)
+        pp.pprint(sub_attr)
+
+        flat_exclusions = self.get_exclusions(attr_vals, val_by_attr)
+        pp.pprint(flat_exclusions)
+        # for val in attr_vals:
+        #     not_possible = sub_attr[val.id]
+        #     flat_exclusions.setdefault(main_attr_val.id, []).append(main_attr_val.id)
+
+
 
 
 class ProductAttributeValue(models.Model):
@@ -229,20 +281,35 @@ class ProductAttributeValue(models.Model):
         # Recursion only needed with past filter
         # attr_vals = self.prepare_child_attr_val(attr_vals)
 
-        for main_attr_val in attr_vals:
-            tmpl_attr = {}
-            # create a dict of attributes+values for product.template
-            # ex: {color.id: [blue.id, black.id]}
-            for sub_attr in main_attr_val.attribute_value_ids:
-                tmpl_attr.setdefault(sub_attr.attribute_id.id, []).append(sub_attr.id)
+        # for main_attr_val in attr_vals:
+        #     tmpl_attr = {}
+        #     # create a dict of attributes+values for product.template
+        #     # ex: {color.id: [blue.id, black.id]}
+        #     for sub_attr in main_attr_val.attribute_value_ids:
+        #         tmpl_attr.setdefault(sub_attr.attribute_id.id, []).append(sub_attr.id)
+        #
+        #     # All attribute lines with current attribute value(main_attr)
+        #     # lines are on product.template to generate product.template.attribute.value
+        #     attr_lines = self.env['product.template.attribute.line'].search([['value_ids', 'in', main_attr_val.id]])
+        #
+        #     # Call function to do the value addition/exclusions
+        #     if attr_lines:
+        #         self.prod_attr_val_add(main_attr_val, attr_lines, tmpl_attr)
 
-            # All attribute lines with current attribute value(main_attr)
-            # lines are on product.template to generate product.template.attribute.value
-            attr_lines = self.env['product.template.attribute.line'].search([['value_ids', 'in', main_attr_val.id]])
+        # TODO: temp products var for looping
+        products = self.env['product.template'].search([('id', '=', 3995)])
 
-            # Call function to do the value addition/exclusions
-            if attr_lines:
-                self.prod_attr_val_add(main_attr_val, attr_lines, tmpl_attr)
+        for prod in products:
+            flat_ex = {}
+            attrs = prod.attribute_line_ids.mapped('value_ids')
+            # pp.pprint(attrs)
+            print(prod.name_get())
+            print(attrs.name_get())
+            # for a in attrs:
+                #     print('placeholder')
+                # flat_ex[a.id] =
+
+
 
     @api.model
     def create_attr_val_exclusions_server(self, records):
