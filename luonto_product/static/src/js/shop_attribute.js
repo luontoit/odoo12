@@ -105,7 +105,7 @@ odoo.define('website_sale.new_cart', function (require) {
 
         $('input[type="radio"].js_variant_change, select.js_variant_change').on('change', function(event) {
             var $form = $(this).closest('form');
-            hide_excluded_products($form, $(this).val(), event);
+            hide_excluded_products($form, event);
         });
 
         // Trigger the change everytime Product page is loaded

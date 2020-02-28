@@ -8,14 +8,24 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 class ProductProduct(models.Model):
-    _inherit = "product.product"
+    _inherit = 'product.product'
 
-    is_exclude = fields.Boolean(string="Is Excluded Variant",
-                                store=True)
+    # is_exclude = fields.Boolean(string='Is Excluded Variant',
+    #                             compute='_compute_is_excluded',
+    #                             store=True)
+    #
+    # @api.multi
+    # @api.depends('attribute_value_ids')
+    # def _compute_is_excluded(self):
+    #     for prod in self:
+    #         flat_ex = prod.product_tmpl_id.get_flat_exclusions()
+    #         for val in prod.attribute_value_ids:
+    #             if any(val.id in exc for exc in flat_ex.values()):
+    #                 prod.is_exclude = True
 
 
 class ProductTemplate(models.Model):
-    _inherit = "product.template"
+    _inherit = 'product.template'
 
     @api.multi
     def get_attr_no_buy(self):
@@ -34,13 +44,13 @@ class ProductTemplate(models.Model):
         # update the exclusion set
         child_ex = []
         # for all attribute values in children attribute values
-        for val in attr_val.attribute_value_ids.filtered(lambda v: v.attribute_value_ids):
+        for val in attr_val.attribute_value_ids.with_context(prefetch_fields=False):
             # if they themselves have children
-            # if val.attribute_value_ids:
+            if val.attribute_value_ids:
             # recursively search for exclusions
-            pos_ex = self.get_exclusions_recursive(val, val_by_attr)
-            if pos_ex:
-                child_ex.append(pos_ex)
+                pos_ex = self.get_exclusions_recursive(val, val_by_attr)
+                if pos_ex:
+                    child_ex.append(pos_ex)
         if child_ex:
             ex.update(set.intersection(*child_ex))
         return ex
@@ -61,13 +71,14 @@ class ProductTemplate(models.Model):
         # dictionary of sets
         all_ex = {key: set() for key in attribute_values.ids}
         # For all attribute values with child attribute values
-        for val in attribute_values.filtered(lambda v: v.attribute_value_ids):
+        for val in attribute_values:
             # Create dict with key = current attr val's id and value = set of exclusions
             # all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
-            all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr))
-            # mirror the children
-            for x in all_ex[val.id]:
-                all_ex[x].add(val.id)
+            if val.attribute_value_ids.with_context(prefetch_fields=False):
+                all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr))
+                # mirror the children
+                for x in all_ex[val.id]:
+                    all_ex[x].add(val.id)
         all_ex = {x: list(all_ex[x]) for x in all_ex}
         return all_ex
 
@@ -86,8 +97,8 @@ class ProductTemplate(models.Model):
         # pp.pprint(sub_attr)
 
         flat_exclusions = self.get_exclusions(attr_vals, val_by_attr)
-        print("FLAT EXCLUSIONS")
-        pp.pprint(flat_exclusions)
+        # print("FLAT EXCLUSIONS")
+        # pp.pprint(flat_exclusions)
         # for val in attr_vals:
         #     not_possible = sub_attr[val.id]
         #     flat_exclusions.setdefault(main_attr_val.id, []).append(main_attr_val.id)
@@ -95,7 +106,7 @@ class ProductTemplate(models.Model):
 
 
 class ProductAttributeValue(models.Model):
-    _inherit = "product.attribute.value"
+    _inherit = 'product.attribute.value'
 
     attribute_value_ids = fields.Many2many(
         comodel_name='product.attribute.value',
@@ -247,7 +258,7 @@ class ProductAttributeValue(models.Model):
         # TODO Future?: consider call search/search_read
         #
         # prefetching exclusion env for later
-        combination_exclude = self.env['product.template.attribute.exclusion']
+        # combination_exclude = self.env['product.template.attribute.exclusion']
         # Add the sub attr val to the current attribute value(main_attr)
         # for line all attr lines on the a product template
         for line in attr_lines:
@@ -259,18 +270,18 @@ class ProductAttributeValue(models.Model):
 
             # create the variants(prod.prod) for that prod.temp manually
             # using odoo function
-            prod.create_variant_ids()
+            # prod.create_variant_ids()
 
             # create the exclusions on the attribute values
-            self.create_ex_attr_val(prod, main_attr, tmpl_attr)
-            # Set exclusion boolean on the product variant if attribute values align
-            for variant in prod.product_variant_ids:
-                values_ids = variant.product_template_attribute_value_ids
-                domain = [('product_template_attribute_value_id', 'in', values_ids.ids),
-                          ('value_ids', 'in', values_ids.ids), ('product_tmpl_id', '=', prod.id)]
-                is_ex = combination_exclude.search(domain)
-                if is_ex:
-                    variant.write({'is_exclude': True})
+            # self.create_ex_attr_val(prod, main_attr, tmpl_attr)
+            # # Set exclusion boolean on the product variant if attribute values align
+            # for variant in prod.product_variant_ids:
+            #     values_ids = variant.product_template_attribute_value_ids
+            #     domain = [('product_template_attribute_value_id', 'in', values_ids.ids),
+            #               ('value_ids', 'in', values_ids.ids), ('product_tmpl_id', '=', prod.id)]
+            #     is_ex = combination_exclude.search(domain)
+            #     if is_ex:
+            #         variant.write({'is_exclude': True})
 
     def prepare_child_attr_val(self, attr_vals):
         # Loop through all the current attribute values in the recordset
@@ -316,15 +327,15 @@ class ProductAttributeValue(models.Model):
             if attr_lines:
                 self.prod_attr_val_add(main_attr_val, attr_lines, tmpl_attr)
 
-        # TODO: temp products var for looping
-        products = self.env['product.template'].search([('id', '=', 3995)])
-
-        for prod in products:
-            flat_ex = {}
-            attrs = prod.attribute_line_ids.mapped('value_ids')
-            # pp.pprint(attrs)
-            print(prod.name_get())
-            print(attrs.name_get())
+        # # TODO: temp products var for looping
+        # products = self.env['product.template'].search([('id', '=', 3995)])
+        #
+        # for prod in products:
+        #     flat_ex = {}
+        #     attrs = prod.attribute_line_ids.mapped('value_ids')
+        #     # pp.pprint(attrs)
+        #     print(prod.name_get())
+        #     print(attrs.name_get())
             # for a in attrs:
                 #     print('placeholder')
                 # flat_ex[a.id] =
