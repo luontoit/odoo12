@@ -6,6 +6,7 @@ import pprint
 import datetime
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
@@ -18,35 +19,30 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def get_attr_no_buy(self):
-        ids = self.attribute_line_ids.mapped('product_te9mplate_value_ids').filtered(
+        ids = self.attribute_line_ids.mapped('product_template_value_ids').filtered(
             lambda a: a.product_attribute_value_id.is_not_buy).ids
         return {'no_buys': ids}
 
     @api.multi
     def get_exclusions_recursive(self, attr_val, val_by_attr):
-        print(val_by_attr)
         possible = []
         # get all possible exclusion values of current val's children
         for x in attr_val.attribute_value_ids.mapped('attribute_id').ids:
             possible += val_by_attr[x]
-
         # get all possible exclusion values not themselves children of the current val
         ex = {x for x in possible if x not in attr_val.attribute_value_ids.ids}
         # update the exclusion set
-
         child_ex = []
-        # sub_ex = set()
         # for all attribute values in children attribute values
-        for val in attr_val.attribute_value_ids:
+        for val in attr_val.attribute_value_ids.filtered(lambda v: v.attribute_value_ids):
             # if they themselves have children
-            if val.attribute_value_ids:
-                # recursively search for exclusions
-                child_ex.append(self.get_exclusions_recursive(val, val_by_attr))
+            # if val.attribute_value_ids:
+            # recursively search for exclusions
+            pos_ex = self.get_exclusions_recursive(val, val_by_attr)
+            if pos_ex:
+                child_ex.append(pos_ex)
         if child_ex:
             ex.update(set.intersection(*child_ex))
-            # exclusions.update(sub_ex)
-        # sub_ex.update(ex)
-        # TODO: check why updating and returning exclusions
         return ex
 
     # recursive algorithm
@@ -62,16 +58,17 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def get_exclusions(self, attribute_values, val_by_attr):
-        #dictionary of sets
-        all_ex = {}
+        # dictionary of sets
+        all_ex = {key: set() for key in attribute_values.ids}
         # For all attribute values with child attribute values
         for val in attribute_values.filtered(lambda v: v.attribute_value_ids):
             # Create dict with key = current attr val's id and value = set of exclusions
             # all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
-            all_ex.setdefault(val.id, set()).update(self.get_exclusions_recursive(val, val_by_attr))
+            all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr))
             # mirror the children
             for x in all_ex[val.id]:
-                all_ex.setdefault(x, set()).add(val.id)
+                all_ex[x].add(val.id)
+        all_ex = {x: list(all_ex[x]) for x in all_ex}
         return all_ex
 
     @api.multi
@@ -81,20 +78,20 @@ class ProductTemplate(models.Model):
         # Dict of key = attribute and value = attribute value
         # ex: {color.id: [red.id, blue.id, black.id]}
         val_by_attr = {}
-        sub_attr = {}
+        # sub_attr = {}
         for main_attr_val in attr_vals:
             val_by_attr.setdefault(main_attr_val.attribute_id.id, []).append(main_attr_val.id)
-            sub_attr[main_attr_val.id] = main_attr_val.attribute_value_ids.ids
-        pp.pprint(val_by_attr)
-        pp.pprint(sub_attr)
+            # sub_attr[main_attr_val.id] = main_attr_val.attribute_value_ids.ids
+        # pp.pprint(val_by_attr)
+        # pp.pprint(sub_attr)
 
         flat_exclusions = self.get_exclusions(attr_vals, val_by_attr)
+        print("FLAT EXCLUSIONS")
         pp.pprint(flat_exclusions)
         # for val in attr_vals:
         #     not_possible = sub_attr[val.id]
         #     flat_exclusions.setdefault(main_attr_val.id, []).append(main_attr_val.id)
-
-
+        return flat_exclusions
 
 
 class ProductAttributeValue(models.Model):
@@ -304,20 +301,20 @@ class ProductAttributeValue(models.Model):
         # Recursion only needed with past filter
         # attr_vals = self.prepare_child_attr_val(attr_vals)
 
-        # for main_attr_val in attr_vals:
-        #     tmpl_attr = {}
-        #     # create a dict of attributes+values for product.template
-        #     # ex: {color.id: [blue.id, black.id]}
-        #     for sub_attr in main_attr_val.attribute_value_ids:
-        #         tmpl_attr.setdefault(sub_attr.attribute_id.id, []).append(sub_attr.id)
-        #
-        #     # All attribute lines with current attribute value(main_attr)
-        #     # lines are on product.template to generate product.template.attribute.value
-        #     attr_lines = self.env['product.template.attribute.line'].search([['value_ids', 'in', main_attr_val.id]])
-        #
-        #     # Call function to do the value addition/exclusions
-        #     if attr_lines:
-        #         self.prod_attr_val_add(main_attr_val, attr_lines, tmpl_attr)
+        for main_attr_val in attr_vals:
+            tmpl_attr = {}
+            # create a dict of attributes+values for product.template
+            # ex: {color.id: [blue.id, black.id]}
+            for sub_attr in main_attr_val.attribute_value_ids:
+                tmpl_attr.setdefault(sub_attr.attribute_id.id, []).append(sub_attr.id)
+
+            # All attribute lines with current attribute value(main_attr)
+            # lines are on product.template to generate product.template.attribute.value
+            attr_lines = self.env['product.template.attribute.line'].search([['value_ids', 'in', main_attr_val.id]])
+
+            # Call function to do the value addition/exclusions
+            if attr_lines:
+                self.prod_attr_val_add(main_attr_val, attr_lines, tmpl_attr)
 
         # TODO: temp products var for looping
         products = self.env['product.template'].search([('id', '=', 3995)])

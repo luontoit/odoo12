@@ -7,7 +7,7 @@ odoo.define('website_sale.new_cart', function (require) {
     var core = require("web.core")
 
     web_editor_base.ready().then(function(){
-        function hide_excluded_products(source_form, attr_id, event) {
+        function hide_excluded_products(source_form, event) {
             function setOriginalSelect ($select) {
                 if ($select.data("originalHTML") == undefined) {
                     $select.find('option').each( function() {
@@ -39,12 +39,12 @@ odoo.define('website_sale.new_cart', function (require) {
 
             var $form = source_form;
             var values = [];
-            var attr_id = parseInt(attr_id);
+            var attr_values = [];
 
             var $parent = $(event.target).closest('.js_product');
-            var productTemplateId = parseInt($parent.find('.product_template_id').val());
             var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
             var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys
+            var flat_ex = $parent.find('ul[data-flat_ex]').data('flat_ex')
 
             // Grab the values that are currently selected
             var values = [];
@@ -55,23 +55,42 @@ odoo.define('website_sale.new_cart', function (require) {
             ];
             _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
                 values.push(+$(el).val());
+//                $('[value=' + +$(el).val() + ']', el)
+//                var option_sel = $(el).find('option:selected').data('value_id');
+                attr_values.push($(el).find('option:selected').data('value_id'));
                 $(el).each(function(){
-                    setOriginalSelect($(this))
+                    setOriginalSelect($(this));
                     restoreOptions($(this), +$(el).val());
-
                 });
             });
+
+//            _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
+//                attr_values.push(+$(el).getAttribute('data-value_id'));
+////                $(el).each(function(){
+////                    setOriginalSelect($(this))
+////                    restoreOptions($(this), +$(el).val());
+////
+////                });
+//            });
 
             for (var val of values) {
                 if (no_buy_variants.includes(val)){
                     $('input[value="'+ val +'"]').addClass('no_buy_grey');
                     $('option[value="'+ val +'"]').addClass('no_buy_grey');
                 };
-                var to_hide = product_exclusions[val]
+//                var to_hide = product_exclusions[val]
                 // Hide all related attribute values
-                for (var h of to_hide) {
-                    $('input[value="'+ h +'"]').remove();
-                    $('option[value="'+ h +'"]').remove();
+//                for (var h of to_hide) {
+//                    $('input[value="'+ h +'"]').remove();
+//                    $('option[value="'+ h +'"]').remove();
+//                }
+            }
+
+            for (var attr of attr_values) {
+                var hide = flat_ex[attr]
+                for (var h of hide) {
+                    $('input[data-value_id="'+ h +'"]').remove();
+                    $('option[data-value_id="'+ h +'"]').remove();
                 }
             }
 
@@ -87,7 +106,6 @@ odoo.define('website_sale.new_cart', function (require) {
         $('input[type="radio"].js_variant_change, select.js_variant_change').on('change', function(event) {
             var $form = $(this).closest('form');
             hide_excluded_products($form, $(this).val(), event);
-
         });
 
         // Trigger the change everytime Product page is loaded
