@@ -37,14 +37,15 @@ class ProductTemplate(models.Model):
     def get_exclusions_recursive(self, attr_val, val_by_attr):
         possible = []
         # get all possible exclusion values of current val's children
-        for x in attr_val.attribute_value_ids.mapped('attribute_id').ids:
-            possible += val_by_attr[x]
+        pos_exclusions = attr_val.attribute_value_ids.mapped('attribute_id').ids
+        for x in pos_exclusions:
+            possible += val_by_attr.get(x, [])
         # get all possible exclusion values not themselves children of the current val
         ex = {x for x in possible if x not in attr_val.attribute_value_ids.ids}
         # update the exclusion set
         child_ex = []
         # for all attribute values in children attribute values
-        for val in attr_val.attribute_value_ids.with_context(prefetch_fields=False):
+        for val in attr_val.attribute_value_ids:
             # if they themselves have children
             if val.attribute_value_ids:
             # recursively search for exclusions
@@ -74,7 +75,7 @@ class ProductTemplate(models.Model):
         for val in attribute_values:
             # Create dict with key = current attr val's id and value = set of exclusions
             # all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
-            if val.attribute_value_ids.with_context(prefetch_fields=False):
+            if val.attribute_value_ids:
                 all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr))
                 # mirror the children
                 for x in all_ex[val.id]:
