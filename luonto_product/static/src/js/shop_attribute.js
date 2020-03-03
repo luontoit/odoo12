@@ -55,8 +55,6 @@ odoo.define('website_sale.new_cart', function (require) {
             ];
             _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
                 values.push(+$(el).val());
-//                $('[value=' + +$(el).val() + ']', el)
-//                var option_sel = $(el).find('option:selected').data('value_id');
                 attr_values.push($(el).find('option:selected').data('value_id'));
                 $(el).each(function(){
                     setOriginalSelect($(this));
@@ -64,26 +62,11 @@ odoo.define('website_sale.new_cart', function (require) {
                 });
             });
 
-//            _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
-//                attr_values.push(+$(el).getAttribute('data-value_id'));
-////                $(el).each(function(){
-////                    setOriginalSelect($(this))
-////                    restoreOptions($(this), +$(el).val());
-////
-////                });
-//            });
-
             for (var val of values) {
                 if (no_buy_variants.includes(val)){
                     $('input[value="'+ val +'"]').addClass('no_buy_grey');
                     $('option[value="'+ val +'"]').addClass('no_buy_grey');
                 };
-//                var to_hide = product_exclusions[val]
-                // Hide all related attribute values
-//                for (var h of to_hide) {
-//                    $('input[value="'+ h +'"]').remove();
-//                    $('option[value="'+ h +'"]').remove();
-//                }
             }
 
             for (var attr of attr_values) {

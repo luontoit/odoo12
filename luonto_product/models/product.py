@@ -7,23 +7,6 @@ import datetime
 pp = pprint.PrettyPrinter(indent=4)
 
 
-class ProductProduct(models.Model):
-    _inherit = 'product.product'
-
-    # is_exclude = fields.Boolean(string='Is Excluded Variant',
-    #                             compute='_compute_is_excluded',
-    #                             store=True)
-    #
-    # @api.multi
-    # @api.depends('attribute_value_ids')
-    # def _compute_is_excluded(self):
-    #     for prod in self:
-    #         flat_ex = prod.product_tmpl_id.get_flat_exclusions()
-    #         for val in prod.attribute_value_ids:
-    #             if any(val.id in exc for exc in flat_ex.values()):
-    #                 prod.is_exclude = True
-
-
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
@@ -55,13 +38,6 @@ class ProductTemplate(models.Model):
         if child_ex:
             ex.update(set.intersection(*child_ex))
         return ex
-
-    # recursive algorithm
-    # arg = attr_val, val_by_attr, exclusions
-
-    # for each child attr,
-    #
-
     # return all children's exclusions
     # aka node = blue > return {M, L, XL}
     # aka note = black > return {XS, XL}
@@ -85,7 +61,6 @@ class ProductTemplate(models.Model):
 
     @api.multi
     def get_flat_exclusions(self):
-
         attr_vals = self.attribute_line_ids.mapped('value_ids')
         # Dict of key = attribute and value = attribute value
         # ex: {color.id: [red.id, blue.id, black.id]}
@@ -93,16 +68,8 @@ class ProductTemplate(models.Model):
         # sub_attr = {}
         for main_attr_val in attr_vals:
             val_by_attr.setdefault(main_attr_val.attribute_id.id, []).append(main_attr_val.id)
-            # sub_attr[main_attr_val.id] = main_attr_val.attribute_value_ids.ids
-        # pp.pprint(val_by_attr)
-        # pp.pprint(sub_attr)
 
         flat_exclusions = self.get_exclusions(attr_vals, val_by_attr)
-        # print("FLAT EXCLUSIONS")
-        # pp.pprint(flat_exclusions)
-        # for val in attr_vals:
-        #     not_possible = sub_attr[val.id]
-        #     flat_exclusions.setdefault(main_attr_val.id, []).append(main_attr_val.id)
         return flat_exclusions
 
 
@@ -255,8 +222,6 @@ class ProductAttributeValue(models.Model):
             None
 
         """
-        # TODO Future?: make prefetch=false
-        # TODO Future?: consider call search/search_read
         #
         # prefetching exclusion env for later
         # combination_exclude = self.env['product.template.attribute.exclusion']
@@ -327,21 +292,6 @@ class ProductAttributeValue(models.Model):
             # Call function to do the value addition/exclusions
             if attr_lines:
                 self.prod_attr_val_add(main_attr_val, attr_lines, tmpl_attr)
-
-        # # TODO: temp products var for looping
-        # products = self.env['product.template'].search([('id', '=', 3995)])
-        #
-        # for prod in products:
-        #     flat_ex = {}
-        #     attrs = prod.attribute_line_ids.mapped('value_ids')
-        #     # pp.pprint(attrs)
-        #     print(prod.name_get())
-        #     print(attrs.name_get())
-            # for a in attrs:
-                #     print('placeholder')
-                # flat_ex[a.id] =
-
-
 
     @api.model
     def create_attr_val_exclusions_server(self, records):

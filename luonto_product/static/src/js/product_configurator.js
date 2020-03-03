@@ -12,7 +12,6 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
      */
     start: function () {
         this._super.apply(this, arguments);
-        var $temp = this.$el.find('input[name="add_qty"]');
     },
 
     _onFieldChanged: function (event) {
@@ -79,12 +78,6 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
                     $('input[value="'+ val +'"]').addClass('no_buy_grey');
                     $('option[value="'+ val +'"]').addClass('no_buy_grey');
                 };
-//                var to_hide = product_exclusions[val]
-//                // Hide all related attribute values
-//                for (var h of to_hide) {
-//                    $('input[value="'+ h +'"]').remove();
-//                    $('option[value="'+ h +'"]').remove();
-//                }
             }
 
             for (var attr of attr_values) {
