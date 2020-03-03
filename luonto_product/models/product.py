@@ -2,18 +2,13 @@
 
 from odoo.exceptions import UserError, ValidationError
 from odoo import api, fields, models, _
+import pprint
 import datetime
-
-
-class ProductProduct(models.Model):
-    _inherit = "product.product"
-
-    is_exclude = fields.Boolean(string="Is Excluded Variant",
-                                store=True)
+pp = pprint.PrettyPrinter(indent=4)
 
 
 class ProductTemplate(models.Model):
-    _inherit = "product.template"
+    _inherit = 'product.template'
 
     @api.multi
     def get_attr_no_buy(self):
@@ -21,9 +16,65 @@ class ProductTemplate(models.Model):
             lambda a: a.product_attribute_value_id.is_not_buy).ids
         return {'no_buys': ids}
 
+    @api.multi
+    def get_exclusions_recursive(self, attr_val, val_by_attr):
+        possible = []
+        # get all possible exclusion values of current val's children
+        pos_exclusions = attr_val.attribute_value_ids.mapped('attribute_id').ids
+        for x in pos_exclusions:
+            possible += val_by_attr.get(x, [])
+        # get all possible exclusion values not themselves children of the current val
+        ex = {x for x in possible if x not in attr_val.attribute_value_ids.ids}
+        # update the exclusion set
+        child_ex = []
+        # for all attribute values in children attribute values
+        for val in attr_val.attribute_value_ids:
+            # if they themselves have children
+            if val.attribute_value_ids:
+            # recursively search for exclusions
+                pos_ex = self.get_exclusions_recursive(val, val_by_attr)
+                if pos_ex:
+                    child_ex.append(pos_ex)
+        if child_ex:
+            ex.update(set.intersection(*child_ex))
+        return ex
+    # return all children's exclusions
+    # aka node = blue > return {M, L, XL}
+    # aka note = black > return {XS, XL}
+    # want > {XL}
+
+    @api.multi
+    def get_exclusions(self, attribute_values, val_by_attr):
+        # dictionary of sets
+        all_ex = {key: set() for key in attribute_values.ids}
+        # For all attribute values with child attribute values
+        for val in attribute_values:
+            # Create dict with key = current attr val's id and value = set of exclusions
+            # all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
+            if val.attribute_value_ids:
+                all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr))
+                # mirror the children
+                for x in all_ex[val.id]:
+                    all_ex[x].add(val.id)
+        all_ex = {x: list(all_ex[x]) for x in all_ex}
+        return all_ex
+
+    @api.multi
+    def get_flat_exclusions(self):
+        attr_vals = self.attribute_line_ids.mapped('value_ids')
+        # Dict of key = attribute and value = attribute value
+        # ex: {color.id: [red.id, blue.id, black.id]}
+        val_by_attr = {}
+        # sub_attr = {}
+        for main_attr_val in attr_vals:
+            val_by_attr.setdefault(main_attr_val.attribute_id.id, []).append(main_attr_val.id)
+
+        flat_exclusions = self.get_exclusions(attr_vals, val_by_attr)
+        return flat_exclusions
+
 
 class ProductAttributeValue(models.Model):
-    _inherit = "product.attribute.value"
+    _inherit = 'product.attribute.value'
 
     attribute_value_ids = fields.Many2many(
         comodel_name='product.attribute.value',
@@ -171,11 +222,9 @@ class ProductAttributeValue(models.Model):
             None
 
         """
-        # TODO Future?: make prefetch=false
-        # TODO Future?: consider call search/search_read
         #
         # prefetching exclusion env for later
-        combination_exclude = self.env['product.template.attribute.exclusion']
+        # combination_exclude = self.env['product.template.attribute.exclusion']
         # Add the sub attr val to the current attribute value(main_attr)
         # for line all attr lines on the a product template
         for line in attr_lines:
@@ -187,18 +236,18 @@ class ProductAttributeValue(models.Model):
 
             # create the variants(prod.prod) for that prod.temp manually
             # using odoo function
-            prod.create_variant_ids()
+            # prod.create_variant_ids()
 
             # create the exclusions on the attribute values
-            self.create_ex_attr_val(prod, main_attr, tmpl_attr)
-            # Set exclusion boolean on the product variant if attribute values align
-            for variant in prod.product_variant_ids:
-                values_ids = variant.product_template_attribute_value_ids
-                domain = [('product_template_attribute_value_id', 'in', values_ids.ids),
-                          ('value_ids', 'in', values_ids.ids), ('product_tmpl_id', '=', prod.id)]
-                is_ex = combination_exclude.search(domain)
-                if is_ex:
-                    variant.write({'is_exclude': True})
+            # self.create_ex_attr_val(prod, main_attr, tmpl_attr)
+            # # Set exclusion boolean on the product variant if attribute values align
+            # for variant in prod.product_variant_ids:
+            #     values_ids = variant.product_template_attribute_value_ids
+            #     domain = [('product_template_attribute_value_id', 'in', values_ids.ids),
+            #               ('value_ids', 'in', values_ids.ids), ('product_tmpl_id', '=', prod.id)]
+            #     is_ex = combination_exclude.search(domain)
+            #     if is_ex:
+            #         variant.write({'is_exclude': True})
 
     def prepare_child_attr_val(self, attr_vals):
         # Loop through all the current attribute values in the recordset

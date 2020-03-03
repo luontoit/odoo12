@@ -12,7 +12,6 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
      */
     start: function () {
         this._super.apply(this, arguments);
-        var $temp = this.$el.find('input[name="add_qty"]');
     },
 
     _onFieldChanged: function (event) {
@@ -54,18 +53,20 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
                     });
             }
 
-            var values = [];
             var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
             var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys
+            var flat_ex = $parent.find('ul[data-flat_ex]').data('flat_ex')
 
             // Grab the values that are currently selected
             var values = [];
+            var attr_values = [];
             var variantsValuesSelectors = [
                 'input.js_variant_change:checked',
                 'select.js_variant_change'
             ];
             _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
                 values.push(+$(el).val());
+                attr_values.push($(el).find('option:selected').data('value_id'));
                 $(el).each(function(){
                     setOriginalSelect($(this));
                     restoreOptions($(this), +$(el).val());
@@ -77,11 +78,13 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
                     $('input[value="'+ val +'"]').addClass('no_buy_grey');
                     $('option[value="'+ val +'"]').addClass('no_buy_grey');
                 };
-                var to_hide = product_exclusions[val]
-                // Hide all related attribute values
-                for (var h of to_hide) {
-                    $('input[value="'+ h +'"]').remove();
-                    $('option[value="'+ h +'"]').remove();
+            }
+
+            for (var attr of attr_values) {
+                var hide = flat_ex[attr]
+                for (var h of hide) {
+                    $('input[data-value_id="'+ h +'"]').remove();
+                    $('option[data-value_id="'+ h +'"]').remove();
                 }
             }
 

@@ -20,9 +20,11 @@
         <template id="variants_inherit_luonto" inherit_id="sale.variants" name="Variants Extended">
             <xpath expr="//ul" position="replace">
                 <t t-set="no_buy_attrs" t-value="product.get_attr_no_buy()"/>
+                <t t-set="flat_ex_attrs" t-value="product.get_flat_exclusions()"/>
                 <ul t-attf-class="list-unstyled js_add_cart_variants #{ul_class}"
                     t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)"
-                    t-att-data-no_buy="json.dumps(no_buy_attrs)">
+                    t-att-data-no_buy="json.dumps(no_buy_attrs)"
+                    t-att-data-flat_ex="json.dumps(flat_ex_attrs)">
                     <t t-foreach="product._get_valid_product_template_attribute_lines()" t-as="variant_id">
                         <!-- Attributes selection is hidden if there is only one value available and it's not a custom value -->
                         <li t-att-data-attribute_id="variant_id.attribute_id.id"
