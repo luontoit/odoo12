@@ -20,6 +20,7 @@
 
     'author': "Odoo PS-US",
     'website': "http://www.odoo.com",
+    'license': 'OEEL-1',
 
     'category': 'Custom Development',
     'version': '0.1',
@@ -29,6 +30,6 @@
 
     # always loaded
     'data': [
-       
+       'views/product_template.xml'
     ],
 }
