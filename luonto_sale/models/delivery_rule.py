@@ -4,18 +4,16 @@ from odoo import api, fields, models
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError
 
-
 class PriceRule(models.Model):
     _inherit = 'delivery.price.rule'
 
     variable = fields.Selection(selection_add=[('num_seats', 'Number of Seats')])
     variable_factor = fields.Selection(selection_add=[('num_seats', 'Number of Seats')])
 
-
-
 class ProviderGrid(models.Model):
     _inherit = 'delivery.carrier'
 
+    # Added num_seats a new condition, to calculate the number of frieght seats. 
     def _get_price_available(self, order):
         self.ensure_one()
         total = weight = volume = quantity = num_seats = 0
