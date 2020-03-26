@@ -30,7 +30,7 @@ class ProviderGrid(models.Model):
             volume += (line.product_id.volume or 0.0) * qty
             quantity += qty
             #################### change starts here######################
-            num_seats += (int(line.product_id.seat_qty_for_freight) or 0.0)
+            num_seats += (int(line.product_id.seat_qty_for_freight) or 0.0) * qty
             ################## ends here#########################
         total = (order.amount_total or 0.0) - total_delivery
 
