@@ -29,6 +29,7 @@
 
     'category': 'Custom Development',
     'version': '0.1',
+    'license': 'OEEL-1',
 
     # any module necessary for this one to work correctly
     'depends': ['base_automation', 'stock', 'website_sale'],
