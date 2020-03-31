@@ -6,3 +6,8 @@
 .no_buy_grey {
   color: #ccc;
 }
+
+.reset_button {
+  float: right;
+  margin-bottom: 3px;
+}

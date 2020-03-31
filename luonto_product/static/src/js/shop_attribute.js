@@ -91,7 +91,24 @@ odoo.define('website_sale.new_cart', function (require) {
             hide_excluded_products($form, event);
         });
 
-        // Trigger the change everytime Product page is loaded
+        //On click of Reset, Change selected to the no_buy option
+        $('.reset-button').on('click', function(event) {
+            event.preventDefault();
+            console.log('TEST CLICK RESET');
+            var $parent = $(event.target).closest('.js_product');
+            _.each($parent.find('select.js_variant_change'), function (el) {
+//                values.push(+$(el).val());
+                var init_op = $(el).find('option[data-is_init=True]').val();
+                $(el).val(init_op);
+                console.log(init_op);
+//                $(el).each(function(){
+//
+//                });
+            });
+
+        }); // End reset trigger
+
+        // Trigger the change every time Product page is loaded
         $( document ).ready(function() {
             $('input[type="radio"].js_variant_change, select.js_variant_change').trigger('change');
         });
