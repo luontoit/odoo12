@@ -12,6 +12,7 @@
                 <field name="credit_limit" />
                 <field name="total_quotes" readonly="1" force_save="1"/>
                 <field name="current_credit" readonly="1" force_save="1"/>
+                <field name="available_credit" readonly="1" force_save="1"/>
             </field>
         </field>
     </record>
