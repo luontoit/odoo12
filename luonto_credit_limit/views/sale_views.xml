@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_order_form_inherit_sale_stock_credit_limit" model="ir.ui.view">
+            <field name="name">sale.order.form.sale.stock.credit.limit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock"/>
+            <field name="arch" type="xml">
+                <field name="picking_ids" position="after">
+                    <field name="is_credit_limit_exceeded" invisible="1"/>
+                </field>
+                <xpath expr="//button[@name='action_view_delivery']" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('delivery_count', '=', 0), ('is_credit_limit_exceeded', '=', True)]}</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
