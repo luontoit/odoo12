@@ -12,6 +12,9 @@
         </template>
 
         <template id="assets_backend_luonto" inherit_id="sale.assets_backend_inherit_sale" name="Configurator Extended">
+            <xpath expr="link[last()]" position="after">
+                <link rel="stylesheet" type="text/css" href="/luonto_product/static/src/css/luonto_style.css"/>
+            </xpath>
             <xpath expr="script[last()]" position="after">
                 <script type="text/javascript" src="/luonto_product/static/src/js/product_configurator.js"/>
             </xpath>
