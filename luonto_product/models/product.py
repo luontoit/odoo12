@@ -31,7 +31,7 @@ class ProductTemplate(models.Model):
         for val in attr_val.attribute_value_ids:
             # if they themselves have children
             if val.attribute_value_ids:
-            # recursively search for exclusions
+                # recursively search for exclusions
                 pos_ex = self.get_exclusions_recursive(val, val_by_attr)
                 if pos_ex:
                     child_ex.append(pos_ex)
@@ -84,9 +84,16 @@ class ProductAttributeValue(models.Model):
         string="Sub Attribute Values",
         store=True)
 
-    is_not_buy = fields.Boolean(string="Is Not Buyable",
-                                help="Check this box to restrict customer from selecting and "
-                                     "buying this product with this attribute.")
+    is_not_buy = fields.Boolean(string="Is Initial Option",
+                                help="Check this box to display this as the first option in the configurator customer, "
+                                     "also prevent buying a product with this attribute selected.")
+
+    @api.constrains('attribute_value_ids')
+    def _check_single_initial_option(self):
+        for attr in self:
+            attr_with_no_buy = attr.attribute_value_ids.filtered(lambda a: a.is_not_buy)
+            if len(attr_with_no_buy) > 1:
+                raise ValidationError("Sub Attributes cannot have more than one Initial Option Attribute Value.")
 
     def create_ex_attr_val(self, prod, main_attr, tmpl_attr):
         """Function that begins automatic attribute value addition to products based on sub attribute values
@@ -134,8 +141,6 @@ class ProductAttributeValue(models.Model):
             # product.template.attribute.values that might need to be excluded (color:blue, color:red, color:black)
             # filter:  possible(ex: color:red) not a sub attribute of the need's attribute value(fabric: poly)
             # filter2: filter out if possible is already an exclusion
-            #TODO future: check case for parent1 > child1 > grandchild1
-            # Do we need exclusions for parent1 and grandchild1
             for possible in possible_exclusion.filtered(lambda p: p.product_attribute_value_id not in need.product_attribute_value_id.attribute_value_ids and p not in need.exclude_for.value_ids):
                 # if possible.product_attribute_value_id not in need.product_attribute_value_id.attribute_value_ids:
                 has_tmpl_line = need.exclude_for.filtered(lambda x: x.product_tmpl_id == prod)
@@ -230,24 +235,8 @@ class ProductAttributeValue(models.Model):
         for line in attr_lines:
             # line will have unique prod.temp associated (ex: couch)
             prod = line.product_tmpl_id
-
             # add each of the sub attr val to the product
             self.line_attr_val_add(tmpl_attr, prod)
-
-            # create the variants(prod.prod) for that prod.temp manually
-            # using odoo function
-            # prod.create_variant_ids()
-
-            # create the exclusions on the attribute values
-            # self.create_ex_attr_val(prod, main_attr, tmpl_attr)
-            # # Set exclusion boolean on the product variant if attribute values align
-            # for variant in prod.product_variant_ids:
-            #     values_ids = variant.product_template_attribute_value_ids
-            #     domain = [('product_template_attribute_value_id', 'in', values_ids.ids),
-            #               ('value_ids', 'in', values_ids.ids), ('product_tmpl_id', '=', prod.id)]
-            #     is_ex = combination_exclude.search(domain)
-            #     if is_ex:
-            #         variant.write({'is_exclude': True})
 
     def prepare_child_attr_val(self, attr_vals):
         # Loop through all the current attribute values in the recordset
