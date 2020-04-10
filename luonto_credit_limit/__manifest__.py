@@ -13,7 +13,7 @@ Luonto: Credit Limit
 ====================
     """,
     'category': 'Custom Development',
-    'depends': ['sale', 'base', 'account', 'sale_stock'],
+    'depends': ['sale', 'base', 'account', 'sale_stock', 'account_accountant'],
     'data': [
         'views/partner_views.xml',
         'views/sale_views.xml',
