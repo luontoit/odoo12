@@ -15,7 +15,7 @@
 
         3. The sales tools (ecommerce shop and sale.order) will hide the attribute values (colors) not available for a selected attribute value (fabric style).
     
-        ​​​​4. Product configurator on backend sales should also make the incompatible attribute values invisible.
+        4. Product configurator on backend sales should also make the incompatible attribute values invisible.
         
         5. Scheduled action to run the attribute changes. Do you think this would be the best way to run the sub attribute action without having to break it into chunks?
 
@@ -50,5 +50,6 @@
         'data/actions.xml',
         'views/product_attribute_views.xml',
         'views/templates.xml',
+        'views/product_config_views.xml',
     ],
 }
