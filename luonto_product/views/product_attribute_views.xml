@@ -37,7 +37,6 @@
                             </group>
                         </group>
                         <group>
-<!--                            <group>-->
                                 <field name="is_not_buy"/>
                                 <field name="attribute_value_ids">
                                     <tree>
@@ -46,7 +45,6 @@
                                         <field name="is_not_buy"/>
                                     </tree>
                                 </field>
-<!--                            </group>-->
                         </group>
                     </sheet>
                 </form>

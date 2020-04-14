@@ -11,6 +11,19 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
     }),
 
     /**
+     * Shows the add button and hides the dummy button
+     *
+     * @private
+     * @param configuratorHtml
+     */
+    renderConfigurator: function (configuratorHtml) {
+        this._super.apply(this, arguments);
+        this.$el.parents('.modal').find('.o_dummy_add_button').addClass('o_button_hidden');
+        this.$el.parents('.modal').find('.o_sale_product_configurator_add').show();
+
+    },
+
+    /**
      * Hides the excluded products based on js computation
      *
      * @private
