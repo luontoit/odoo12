@@ -10,13 +10,11 @@ pp = pprint.PrettyPrinter(indent=4)
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    @api.multi
     def get_attr_no_buy(self):
         ids = self.attribute_line_ids.mapped('product_template_value_ids').filtered(
             lambda a: a.product_attribute_value_id.is_not_buy).ids
         return {'no_buys': ids}
 
-    @api.multi
     def get_exclusions_recursive(self, attr_val, val_by_attr):
         possible = []
         # get all possible exclusion values of current val's children
@@ -43,7 +41,6 @@ class ProductTemplate(models.Model):
     # aka note = black > return {XS, XL}
     # want > {XL}
 
-    @api.multi
     def get_exclusions(self, attribute_values, val_by_attr):
         # dictionary of sets
         all_ex = {key: set() for key in attribute_values.ids}
@@ -59,7 +56,6 @@ class ProductTemplate(models.Model):
         all_ex = {x: list(all_ex[x]) for x in all_ex}
         return all_ex
 
-    @api.multi
     def get_flat_exclusions(self):
         attr_vals = self.attribute_line_ids.mapped('value_ids')
         # Dict of key = attribute and value = attribute value
