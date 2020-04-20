@@ -15,7 +15,6 @@ var ProductConfiguratorFormControllerLuonto = ProductConfiguratorFormController.
      */
     _onFieldChanged: function (event) {
         this.$el.parents('.modal').find('.o_sale_product_configurator_add').hide();
-//        this.$el.parents('.modal').find('.o_dummy_add_button').removeClass('o_button_hidden');
         this._super.apply(this, arguments);
     },
 

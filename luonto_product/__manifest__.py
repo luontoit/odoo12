@@ -50,6 +50,5 @@
         'data/actions.xml',
         'views/product_attribute_views.xml',
         'views/templates.xml',
-        'views/product_config_views.xml',
     ],
 }
