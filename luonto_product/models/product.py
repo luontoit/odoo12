@@ -17,42 +17,48 @@ class ProductTemplate(models.Model):
         return {'no_buys': ids}
 
     @api.multi
-    def get_exclusions_recursive(self, attr_val, val_by_attr):
+    def get_exclusions_recursive(self, attr_val, val_by_attr, visited, all_ex):
         possible = []
-        # get all possible exclusion values of current val's children
+        # get all possible exclusion(attribute ids) values of current val's children (ex: [color] is sub attr of fabric)
         pos_exclusions = attr_val.attribute_value_ids.mapped('attribute_id').ids
         for x in pos_exclusions:
+            # add all attr val id of that possible attribute exclusion
             possible += val_by_attr.get(x, [])
-        # get all possible exclusion values not themselves children of the current val
+        # get all possible exclusion values not themselves children of the current val, attr val that are not child of current attr val
         ex = {x for x in possible if x not in attr_val.attribute_value_ids.ids}
         # update the exclusion set
         child_ex = []
         # for all attribute values in children attribute values
         for val in attr_val.attribute_value_ids:
             # if they themselves have children
-            if val.attribute_value_ids:
+            if val.attribute_value_ids and val.id not in visited:
                 # recursively search for exclusions
-                pos_ex = self.get_exclusions_recursive(val, val_by_attr)
+                pos_ex = self.get_exclusions_recursive(val, val_by_attr, visited, all_ex)
                 if pos_ex:
                     child_ex.append(pos_ex)
+            elif val.id in visited:
+                val_ex = all_ex.get(val.id, [])
+                if val_ex:
+                    child_ex.append(val_ex)
         if child_ex:
             ex.update(set.intersection(*child_ex))
+        # Add current attr val to visited set
+        visited.add(attr_val.id)
         return ex
     # return all children's exclusions
     # aka node = blue > return {M, L, XL}
-    # aka note = black > return {XS, XL}
+    # aka node = black > return {XS, XL}
     # want > {XL}
 
     @api.multi
-    def get_exclusions(self, attribute_values, val_by_attr):
+    def get_exclusions(self, attribute_values, val_by_attr, visited):
         # dictionary of sets
         all_ex = {key: set() for key in attribute_values.ids}
         # For all attribute values with child attribute values
         for val in attribute_values:
             # Create dict with key = current attr val's id and value = set of exclusions
-            # all_ex[val.id] = self.get_exclusions_recursive(val, val_by_attr, set())
             if val.attribute_value_ids:
-                all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr))
+                all_ex[val.id].update(self.get_exclusions_recursive(val, val_by_attr, visited, all_ex))
                 # mirror the children
                 for x in all_ex[val.id]:
                     all_ex[x].add(val.id)
@@ -65,11 +71,13 @@ class ProductTemplate(models.Model):
         # Dict of key = attribute and value = attribute value
         # ex: {color.id: [red.id, blue.id, black.id]}
         val_by_attr = {}
-        # sub_attr = {}
+        # Set of visited nodes(attr val)
+        visited = set()
+
         for main_attr_val in attr_vals:
             val_by_attr.setdefault(main_attr_val.attribute_id.id, []).append(main_attr_val.id)
 
-        flat_exclusions = self.get_exclusions(attr_vals, val_by_attr)
+        flat_exclusions = self.get_exclusions(attr_vals, val_by_attr, visited)
         return flat_exclusions
 
 

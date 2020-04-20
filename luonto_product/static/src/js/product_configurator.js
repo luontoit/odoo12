@@ -18,7 +18,7 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
      */
     renderConfigurator: function (configuratorHtml) {
         this._super.apply(this, arguments);
-        this.$el.parents('.modal').find('.o_dummy_add_button').addClass('o_button_hidden');
+//        this.$el.parents('.modal').find('.o_dummy_add_button').addClass('o_button_hidden');
         this.$el.parents('.modal').find('.o_sale_product_configurator_add').show();
 
     },
