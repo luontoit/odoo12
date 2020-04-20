@@ -7,14 +7,15 @@ odoo.define('website_sale.new_cart', function (require) {
     var core = require("web.core")
 
     web_editor_base.ready().then(function(){
-        function hide_excluded_products(source_form, event) {
+
+        function hide_excluded_products(event) {
+
             function setOriginalSelect ($select) {
                 if ($select.data("originalHTML") == undefined) {
                     $select.find('option').each( function() {
                         $(this).removeAttr('class');
                         $(this).removeAttr('selected');
-                    }
-                    );
+                    });
                     $select.data("originalHTML", $select.html());
                 } // If it's already there, don't re-set it
             }
@@ -31,28 +32,27 @@ odoo.define('website_sale.new_cart', function (require) {
                 }
 
                 $select.find('option').each( function() {
-                        if ($(this).val() == cur_selected) {
-                            $(this).attr("selected","selected");
-                        }
-                    });
+                    if ($(this).val() == cur_selected) {
+                        $(this).attr("selected","selected");
+                    }
+                });
             }
 
-            var $form = source_form;
             var values = [];
             var attr_values = [];
 
             var $parent = $(event.target).closest('.js_product');
-            var product_exclusions = $parent.find('ul[data-attribute_exclusions]').data('attribute_exclusions').exclusions
-            var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys
-            var flat_ex = $parent.find('ul[data-flat_ex]').data('flat_ex')
+            var no_buy_variants = $parent.find('ul[data-no_buy]').data('no_buy').no_buys;
+            var flat_ex = $parent.find('ul[data-flat_ex]').data('flat_ex');
 
             // Grab the values that are currently selected
             var values = [];
-            var $productSelects = []
+            var $productSelects = [];
             var variantsValuesSelectors = [
                 'input.js_variant_change:checked',
                 'select.js_variant_change'
             ];
+
             _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
                 values.push(+$(el).val());
                 attr_values.push($(el).find('option:selected').data('value_id'));
@@ -62,36 +62,63 @@ odoo.define('website_sale.new_cart', function (require) {
                 });
             });
 
-            for (var val of values) {
-                if (no_buy_variants.includes(val)){
-                    $('input[value="'+ val +'"]').addClass('no_buy_grey');
-                    $('option[value="'+ val +'"]').addClass('no_buy_grey');
-                };
-            }
-
             for (var attr of attr_values) {
-                var hide = flat_ex[attr]
+                var hide = flat_ex[attr];
                 for (var h of hide) {
                     $('input[data-value_id="'+ h +'"]').remove();
                     $('option[data-value_id="'+ h +'"]').remove();
                 }
             }
 
-            var findNoBuy = no_buy_variants.some(r=> values.indexOf(r) >= 0)
-            $parent.find('#add_to_cart').removeClass('stop_buy')
-
+            var findNoBuy = no_buy_variants.some(r=> values.indexOf(r) >= 0);
+            $parent.find('#add_to_cart').removeClass('stop_buy');
             if (findNoBuy) {
-                    $parent.find('#add_to_cart').addClass('stop_buy')
-                };
+                $parent.find('#add_to_cart').addClass('stop_buy');
+            };
+        }; // End hide_excluded_products
 
-        } // End hide_excluded_products
+        function auto_select(event) {
+            var $parent = $(event.target).closest('.js_product');
+            var variantsValuesSelectors = [
+                'input.js_variant_change:checked',
+                'select.js_variant_change'
+            ];
+
+            // For each select option, check if there is only one available option aside from init option(no buy)
+            _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
+                var availOptions = []
+                $(el).find('option').each(function(){
+                    if(typeof $(this).data('is_init') == 'undefined') {
+                        availOptions.push($(this).val());
+                    };
+                });
+                if (availOptions.length == 1) {
+                    $(el).val(availOptions[0]);
+                }
+            });
+        }; // end auto_select
 
         $('input[type="radio"].js_variant_change, select.js_variant_change').on('change', function(event) {
-            var $form = $(this).closest('form');
-            hide_excluded_products($form, event);
+            // First trigger to hide exclusions
+            hide_excluded_products(event);
+            // Auto select if option is only one avaible
+            auto_select(event);
+            // Re-render the exclusions for changing selects
+            hide_excluded_products(event);
         });
 
-        // Trigger the change everytime Product page is loaded
+        //On click of Reset, Change selected to the no_buy option
+        $('.reset_button').on('click', function(event) {
+            event.preventDefault();
+            var $parent = $(event.target).closest('.js_product');
+            _.each($parent.find('select.js_variant_change'), function (el) {
+                var init_op = $(el).find('option[data-is_init=True]').val();
+                $(el).val(init_op);
+            });
+            hide_excluded_products(event);
+        }); // End reset trigger
+
+        // Trigger the change every time Product page is loaded
         $( document ).ready(function() {
             $('input[type="radio"].js_variant_change, select.js_variant_change').trigger('change');
         });
