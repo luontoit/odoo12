@@ -19,7 +19,7 @@ class ResPartner(models.Model):
     @api.depends('total_quotes', 'total_due')
     def _current_credit(self):
         for rec in self:
-            rec.current_credit = rec.total_due + rec.total_quotes
+            rec.current_credit = rec.total_quotes + rec.total_due
 
     @api.depends('credit_limit', 'current_credit')
     def _compute_is_credit_limit_exceeded(self):

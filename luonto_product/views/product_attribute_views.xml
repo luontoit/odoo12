@@ -1,22 +1,23 @@
 <?xml version="1.0"?>
 <odoo>
     <data>
-        <record id="product.variants_action" model="ir.actions.act_window">
+        <record id="attribute_value_action" model="ir.actions.act_window">
             <field name="name">Attribute Values</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">product.attribute.value</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
 
-        <record id="view_variants_tree_inherit_luonto" model="ir.ui.view">
+        <record id="product_attribute_value_tree_view_luonto" model="ir.ui.view">
             <field name="name">product.attribute.value.tree</field>
             <field name="model">product.attribute.value</field>
-            <field name="inherit_id" ref="product.variants_tree_view"/>
             <field name="arch" type="xml">
-                <xpath expr="//tree[1]" position="attributes">
-                    <attribute name="editable"/>
-                </xpath>
+                <tree string="Attribute Values">
+                    <field name="attribute_id"/>
+                    <field name="name"/>
+                    <field name="is_custom"/>
+                    <field name="html_color"/>
+                </tree>
             </field>
         </record>
 
@@ -45,10 +46,15 @@
                                         <field name="is_not_buy"/>
                                     </tree>
                                 </field>
+                            </group>
                         </group>
                     </sheet>
                 </form>
             </field>
         </record>
+
+        <menuitem id="menu_product_attribute_value_action"
+                  action="luonto_product.attribute_value_action"
+                  parent="sale.prod_config_main" groups="product.group_product_variant" sequence="2"/>
     </data>
 </odoo>
