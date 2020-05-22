@@ -25,7 +25,6 @@
         2.) When selecting sub-attribute values from an attribute value there should be option to select multiple sub attributes at the same time in the popup window. It takes a long time to do this manually.
         3.) Add “Reset” button to ecommerce product page and product configurator popup. Right justified to the same line as the Upholstery grade title. That reset button should reset all the dropdown fields on this one product to "Please Select", the first default option as an attribute value.
         4.) If the upholstery color code is selected first, the upholstery grade and name should be automatically selected since those are the only configurable selections available. Currently configuration works well "broad to narrow" use case, but not the opposite direction. If user knows the exactly color code, the upholstery name and grade should automatically configure based on attribute value logic. Video: https://drive.google.com/file/d/1s_EP4kReedU8VtJnebpi-BOwk-NDzh0d/view?usp=sharing
-
     """,
 
     'author': "Odoo PS-US",
