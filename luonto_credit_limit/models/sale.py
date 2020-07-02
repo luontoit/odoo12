@@ -8,10 +8,6 @@ class SaleOrder(models.Model):
 
     is_credit_limit_exceeded = fields.Boolean(related="partner_id.is_credit_limit_exceeded")
 
-<<<<<<< HEAD
-    # @api.multi
-=======
->>>>>>> 13.0-luonto-migration
     # def action_confirm(self):
     #     result = super(SaleOrder, self).action_confirm()
     #     for order in self:
