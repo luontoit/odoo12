@@ -3,8 +3,7 @@
     'name': "Luonto Furniture: Delivery Method Pricing Rule",
 
     'summary': """
-       This “Number of Seats” field will be on the product form with technical name “x_studio_seat_qty_for_freight”
-        We want this “Number of Seats” to appear in this “Create Pricing Rules” screen. And then calculate the shipping costs accordingly upon selection of that specific Carrier 
+       Delivery method pricing rule based on number of seats
     """,
 
     'description': """
