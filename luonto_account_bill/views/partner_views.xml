@@ -1,0 +1,14 @@
+<odoo>
+  <data>
+    <record id="view_partner_form_inherit_luonto" model="ir.ui.view">
+      <field name="name">res.partner.form.inherit.luonto</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook/page[@name='sales_purchases']/group/group[@name='sale']/field[@name='user_id']" position="after">
+          <field name="c_type"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>
