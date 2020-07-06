@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="quant_package_form_inherit_luonto_purchase" model="ir.ui.view">
+        <field name="name">quant.package.form.inherit.luonto_purchase</field>
+        <field name="model">stock.quant.package</field>
+        <field name="inherit_id" ref="stock.view_quant_package_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <field name="location_id" position="before">
+                <field name="label"/>
+            </field>
+        </field>
+    </record>
+</odoo>
