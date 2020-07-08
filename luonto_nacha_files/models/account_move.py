@@ -23,8 +23,8 @@ class AccountMove(models.Model):
             header_record_type = '1'
             priority_code = '01'
             company_banks = self.env.company.bank_ids.search([('partner_id.name', '=', self.env.company.partner_id.name)])
-            if not bool(company_banks):
-                raise ValidationError("Your company does not have a bank account associated with it. Please configure one.")
+            if not bool(company_banks) or not company_banks.aba_routing:
+                raise ValidationError("Your company does not have a bank account associated with it or the account information is incomplete.")
             immediate_destination = ' ' + company_banks.aba_routing[:9]  # PNC bank transit/routing number preceded by a blank space
             vat = re.sub("[^0-9]", "", self.env.company.vat)
             immediate_origin = vat[:10] if len(vat) > 9 else vat.rjust(10)  # Originator's tax ID preceded by a blank space
@@ -94,8 +94,8 @@ class AccountMove(models.Model):
             total_amount = 0
             for count, record in enumerate(self, start=1):
                 vendor_banks = record.partner_id.bank_ids.search([('partner_id.name', '=', record.partner_id.name)])
-                if not bool(vendor_banks):
-                    raise ValidationError("Your vendor %s does not have a bank account associated with it. Please configure one." % (record.partner_id.name))
+                if not bool(vendor_banks) or not vendor_banks.aba_routing or not vendor_banks.acc_number:
+                    raise ValidationError("Your vendor %s does not have a bank account associated with it or the account information is incomplete." % (record.partner_id.name))
 
                 detail_record_type = '6'
                 transaction_code = '22'
@@ -179,7 +179,7 @@ class AccountMove(models.Model):
 
 
         new_file_vals = {
-            'name': 'NACHA' + datetime.now().strftime('%H:%M:%S_%d/%m/%Y') + '.txt',
+            'name': 'NACHA_' + datetime.now().strftime('%d/%m/%Y_%H:%M') + '.txt',
             'type': 'binary',
             'res_model': 'account.move',
             'datas': base64.b64encode(file),
