@@ -12,7 +12,7 @@
     'category': 'Custom Development',
     'version': '0.1',
     'license': 'OEEL-1',
-    'depends': ['account'],
+    'depends': ['account','purchase'],
     'data': [
         'data/action_generate_nacha_file.xml',
     ],
