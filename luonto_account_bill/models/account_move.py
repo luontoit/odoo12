@@ -1,10 +1,16 @@
 from odoo import models, api, fields
+from datetime import date
 
 class AccountMove(models.Model):
     _inherit="account.move"
 
     v_bill_id=fields.Many2one('account.move', string="Vendor Bill")
     invoice_id=fields.Many2one('account.move', string="Invoice Source")
+
+    def action_invoice_paid(self):
+        if self.v_bill_id:
+            for line in self.v_bill_id.line_ids:
+                line.date_maturity = date.today()
 
     def action_post(self):
         res = super(AccountMove, self).action_post()
@@ -35,7 +41,7 @@ class AccountMove(models.Model):
                         'price_unit': sum*self.partner_id.c_type.commission
                     },
                     {
-                        'account_id': self.env['account.account'].search([('name', '=', 'Account Payable')]).id,
+                        'account_id': self.env['account.account'].search([('code', '=', '2010')]).id,
                         'move_id': jn_entry.id,
                         'credit': sum*self.partner_id.c_type.commission
                     }
