@@ -50,4 +50,5 @@ class AccountMove(models.Model):
                 inv_lines = self.env['account.move.line'].create(lines)
                 self.v_bill_id = jn_entry.id
                 jn_entry.update({'invoice_line_ids': [inv_lines[0].id]})
+                self.v_bill_id.action_post()
         return res
