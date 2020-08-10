@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="product_template_packaging_tree_view" model="ir.ui.view">
+        <field name="name">product.template.packaging.tree.view</field>
+        <field name="model">product.packaging</field>
+        <field name="arch" type="xml">
+            <tree string="Product Template Packagings">
+                <field name="sequence" widget="handle"/>
+                <field name="product_tmpl_id"/>
+                <field name="name" string="Packaging"/>
+                <field name="label"/>
+                <field name="qty"/>
+                <field name="product_uom_id" options="{'no_open': True, 'no_create': True}" groups="uom.group_uom"/>
+                <field name="company_id" group="base.group_multi_company"/>
+                <field name="weight"/>
+                <field name="volume"/>
+            </tree>
+        </field>
+    </record>
+    <record id="product_template_packaging_form_view" model="ir.ui.view">
+        <field name="name">product.template.packaging.form.view</field>
+        <field name="model">product.packaging</field>
+        <field name="arch" type="xml">
+            <form string="Product Template Packaging">
+                <sheet>
+                    <label for="name" string="Packaging"/>
+                    <h1>
+                        <field name="name"/>
+                    </h1>
+                    <group>
+                        <field name="id" invisible='1'/>
+                        <group name="group_product">
+                            <field name="product_tmpl_id"  required='True' attrs="{'readonly': [('id', '!=', False)]}"/>
+                            <field name="label"/>
+                        </group>
+                        <group name="qty">
+                            <label for="qty" string="Contained quantity"/>
+                            <div class="o_row">
+                                <field name="qty"/>
+                                <field name="product_uom_id" options="{'no_open': True, 'no_create': True}" groups="uom.group_uom"/>
+                            </div>
+                            <field name="weight"/>
+                            <field name="volume"/>
+                            <field name="barcode"/>
+                            <field name="company_id" group="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="action_template_packaging_view">
+        <field name="name">Product Template Packagings</field>
+        <field name="res_model">product.packaging</field>
+        <field name="domain">[('product_id', '=', False), ('product_tmpl_id', '!=', False)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('product_template_packaging_tree_view')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('product_template_packaging_form_view')})]"/>
+    </record>
+    <menuitem id="menu_product_template_packagings" name="Product Template Packagings"
+              parent="stock.menu_product_in_config_stock" action="luonto_purchase.action_template_packaging_view"
+              groups="product.group_stock_packaging"/>
+</odoo>

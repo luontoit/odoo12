@@ -1,6 +1,6 @@
 odoo.define('luonto_product.ProductConfiguratorFormRendererLuonto', function (require) {
 'use strict';
-var ProductConfiguratorFormRenderer = require('sale.ProductConfiguratorFormRenderer');
+var ProductConfiguratorFormRenderer = require('sale_product_configurator.ProductConfiguratorFormRenderer');
 
 var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.include({
     /**
@@ -16,10 +16,10 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
      * @private
      * @param configuratorHtml
      */
-    renderConfigurator: function (configuratorHtml) {
-        this._super.apply(this, arguments);
-        this.$el.parents('.modal').find('.o_sale_product_configurator_add').show();
-    },
+//    renderConfigurator: function (configuratorHtml) {
+//        this._super.apply(this, arguments);
+//        this.$el.parents('.modal').find('.o_sale_product_configurator_add').show();
+//    },
 
     /**
      * Hides the excluded products based on js computation
@@ -68,7 +68,7 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
 
         _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
             values.push(+$(el).val());
-            attr_values.push($(el).find('option:selected').data('value_id'));
+            attr_values.push($(el).find('option:selected').data('attr_val_id'));
             $(el).each(function(){
                 setOriginalSelect($(this));
                 restoreOptions($(this), +$(el).val());
@@ -78,8 +78,8 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
         for (var attr of attr_values) {
             var hide = flat_ex[attr]
             for (var h of hide) {
-                $('input[data-value_id="'+ h +'"]').remove();
-                $('option[data-value_id="'+ h +'"]').remove();
+                $('input[data-attr_val_id="'+ h +'"]').remove();
+                $('option[data-attr_val_id="'+ h +'"]').remove();
             }
         }
 
@@ -103,20 +103,49 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
             'input.js_variant_change:checked',
             'select.js_variant_change'
         ];
-
+        var is_break = false;
+        var self = this;
         // For each select option, check if there is only one available option aside from init option(no buy)
         _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
-            var availOptions = []
-            $(el).find('option').each(function(){
-                if(typeof $(this).data('is_init') == 'undefined') {
-                    availOptions.push($(this).val());
-                };
-            });
-            if (availOptions.length == 1) {
-                $(el).val(availOptions[0]);
+            var is_single = $(el).data('single');
+            if (is_single !== "true"){
+                var availOptions = []
+                $(el).find('option').each(function(){
+                    if(typeof $(this).data('is_init') == 'undefined') {
+                        availOptions.push($(this).val());
+                    };
+                });
+                if (availOptions.length == 1) {
+                    $(el).val(availOptions[0]);
+                    $(el).data('single', "true");
+                    self._hideExcludedProducts($parent);
+                    is_break = true;
+                }
             }
         });
+        if (is_break){
+            return "changed";
+        }
+        return "done";
     }, // end auto_select
+
+    /**
+     * Auto selects the selection option given there is only one other option aside
+     * from the Initial Option.@param {MouseClick} event
+     *
+     * @private
+     * @param {div.js_product} $parent
+     */
+    _resetSingle: function ($parent) {
+        var variantsValuesSelectors = [
+            'input.js_variant_change:checked',
+            'select.js_variant_change'
+        ];
+        // For each select option, reset single data attr to false
+        _.each($parent.find(variantsValuesSelectors.join(', ')), function (el) {
+            $(el).data('single', "false");
+        });
+    },
 
     /**
      * Resets all the selection fields.
@@ -128,7 +157,7 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
         event.preventDefault();
         var self = this;
         var $parent = $(event.target).closest('.js_product');
-
+        self._resetSingle($parent);
         _.each($parent.find('select.js_variant_change'), function (el) {
             var init_op = $(el).find('option[data-is_init=True]').val();
             $(el).val(init_op);
@@ -145,10 +174,14 @@ var ProductConfiguratorFormRendererLuonto = ProductConfiguratorFormRenderer.incl
     _checkExclusions: function ($parent, combination) {
         this._super.apply(this, arguments);
         var self = this;
+        var state = "";
 
+        self._resetSingle($parent);
         self._hideExcludedProducts($parent);
-        self._autoSelect($parent);
-        self._hideExcludedProducts($parent);
+        // Loop while there may have been a select that triggered another single value
+        while (state !== "done") {
+            state = self._autoSelect($parent);
+        }
     },
 });
 
