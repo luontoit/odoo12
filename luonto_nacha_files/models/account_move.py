@@ -1,11 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+import base64
+import random
+import re
+import string
+
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime
-import base64
-import re
-import random
-import string
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -19,15 +21,17 @@ class AccountMove(models.Model):
 
 
         with open('file.txt', 'w') as f:
-            # File Header record
+            # File Header record / 1 RECORDS
             header_record_type = '1'
             priority_code = '01'
-            company_banks = self.env.company.bank_ids.search([('partner_id.name', '=', self.env.company.partner_id.name)])
+
+            company_banks = self.env.company.bank_ids\
+                .search([('partner_id.name', '=', self.env.company.partner_id.name)])
             if not bool(company_banks) or not company_banks.aba_routing:
                 raise ValidationError("Your company does not have a bank account associated with it or the account information is incomplete.")
-            immediate_destination = ' ' + company_banks.aba_routing[:9]  # PNC bank transit/routing number preceded by a blank space
-            vat = re.sub("[^0-9]", "", self.env.company.vat)
-            immediate_origin = vat[:10] if len(vat) > 9 else vat.rjust(10)  # Originator's tax ID preceded by a blank space
+            company_banks = company_banks[0]
+            immediate_destination = ' ' + company_banks.aba_routing[:9]     # PNC bank transit/routing number preceded by a blank space  # UPDATE: They prefer ACH ABA so needs to change in UI
+            immediate_origin = immediate_destination                        # ACH ABA Number. Immediate destination repeated
             creation_date = datetime.now().strftime('%y%m%d')               # Date when the originator created the file  ** Time format was the opposite format in the sample file
             creation_time = datetime.now().strftime('%H%M')                 # Time when the originator created the file
             file_id = random.choice(string.ascii_uppercase)                 # A random uppercase letter to distinguish between files created on the same date.
@@ -41,7 +45,7 @@ class AccountMove(models.Model):
             f.write(
                     header_record_type +
                     priority_code +
-                    immediate_destination +
+                    immediate_destination +        # ONHOLD: Need to put ACH ABA in UI
                     immediate_origin +
                     creation_date +
                     creation_time +
@@ -55,12 +59,12 @@ class AccountMove(models.Model):
                     '\n'
                     )
 
-            # Company/Batch Header Record
+            # Company/Batch Header Record / 5 RECORDS
             company_record_type = '5'
             service_class_code = '200'
             company_name = 'LUONTO FURNITURE'.rjust(16)
             company_discretionary_data = ' ' * 20
-            vat = re.sub("[^0-9]", "", self.env.company.vat)
+            vat = re.sub("[^0-9]", "", self.env.company.vat) if self.env.company.vat else ''
             company_identification = '1' + vat[:9]                      # TAX ID – res.company vat field. Should be 9 digits and no hiphen
             standard_entry_class_code = 'CCD'
             company_entry_description = 'VENDOR PMT'.rjust(10)
@@ -68,7 +72,7 @@ class AccountMove(models.Model):
             effective_entry_date = datetime.now().strftime('%y%m%d')
             settlement_date = ' ' * 3
             originating_status_code = '1'
-            originating_dfi_number = company_banks.aba_routing[:8]    # 8 first digits of aba_routing on res.partner.bank of Luonto ( our company )
+            originating_dfi_number = company_banks.aba_routing[:8]      # 8 first digits of aba_routing on res.partner.bank of Luonto (our company)
             batch_number = '0000001'
 
             f.write(
@@ -89,27 +93,28 @@ class AccountMove(models.Model):
                     )
 
 
-            # Entry detail records - One record per individual vendor payment
+            # Entry detail records - One record per individual vendor payment / 6 RECORDS
             hash = 0
             total_amount = 0
             for count, record in enumerate(self, start=1):
-                vendor_banks = record.partner_id.bank_ids.search([('partner_id.name', '=', record.partner_id.name)])
-                if not bool(vendor_banks) or not vendor_banks.aba_routing or not vendor_banks.acc_number:
+                vendor_banks = record.partner_id.bank_ids\
+                    .search([('partner_id.name', '=', record.partner_id.name)])  # TODO: I should use env to search. Test that it gives the same result
+                if not bool(vendor_banks) or not vendor_banks.aba_routing or not vendor_banks.acc_number:   # TODO: Ensure one bank account
                     raise ValidationError("Your vendor %s does not have a bank account associated with it or the account information is incomplete." % (record.partner_id.name))
-
+                vendor_banks = vendor_banks[0]
                 detail_record_type = '6'
                 transaction_code = '22'
-                receiving_dfi_id = vendor_banks.aba_routing[:8]           # First 8 digits of the receiver’s bank transit routing number
+                receiving_dfi_id = vendor_banks.aba_routing[:8].rjust(8)        # First 8 digits of the receiver’s bank transit routing number
                 hash += int(receiving_dfi_id)
-                check_digit = vendor_banks.aba_routing[-1]   # Last digit of aba_routing of res.partner.bank of partner
-                dfi_account_number = vendor_banks.acc_number[:17].ljust(17)    # pick only leftmost 17 characters.
+                check_digit = vendor_banks.aba_routing[-1]                      # Last digit of aba_routing of res.partner.bank of partner
+                dfi_account_number = vendor_banks.acc_number[:17].ljust(17)     # pick only leftmost 17 characters.
                 amount = "".join(filter(str.isdigit, '%.2f' % record.amount_residual)).rjust(10, '0')
                 total_amount += int(amount)
                 individual_number = str(record.partner_id.id).rjust(15)
-                individual_name = record.partner_id.name.rjust(22)
+                individual_name = record.partner_id.name.replace(' ','')[:22].rjust(22)
                 discretionary_data = ' '*2
                 addenda = '0'
-                trace_number = receiving_dfi_id +  str(count).rjust(7, '0')     # id + other 7 sequencially generated numbers
+                trace_number = receiving_dfi_id +  str(count).rjust(7, '0')     # ID + other 7 sequencially generated numbers
 
                 f.write(
                         detail_record_type +
@@ -118,13 +123,14 @@ class AccountMove(models.Model):
                         check_digit +
                         dfi_account_number +
                         amount +
-                        individual_number +
+                        individual_number +      # Check with client to see what ID they want for each vendor
                         individual_name +
                         discretionary_data +
                         addenda +
                         trace_number +
                         '\n'
                         )
+
             # Company/Batch Control Record
             batch_control_record_type = '8'
             service_class_code = '200'
@@ -132,18 +138,18 @@ class AccountMove(models.Model):
             hash = str(hash)[-10:].rjust(10, '0')
             total_credit = '0' * 12
             total_debit = str(total_amount).rjust(12, '0')
-            vat = re.sub("[^0-9]", "", self.env.company.vat)
-            immediate_origin = vat[:10] if len(vat) > 9 else vat.rjust(10, '0')  # Originator's tax ID preceded by a numeric
+            vat = re.sub("[^0-9]", "", self.env.company.vat) if self.env.company.vat else ''
+            immediate_origin = vat[:10].rjust(10, '0')  # Originator's tax ID preceded by a numeric
             message_auth_code = ' ' * 19
-            reserved = '6'
+            reserved = ' ' * 6
             originating_dfi_id = company_banks.aba_routing[:8]
             batch_number = '0000001'
-            print(type(batch_number))
 
             f.write(
                     batch_control_record_type +
                     service_class_code +
                     entry_count +
+                    hash +
                     total_credit +
                     total_debit +
                     immediate_origin +
@@ -158,7 +164,8 @@ class AccountMove(models.Model):
             file_control_record_type = '9'
             batch_count = '000001'  # Number of ‘8’ batch records
             block_count = '000003'  # Number of physical blocks in the file, including file header and file control records.
-            reserved = ' ' * 39
+            reserved = ' ' * 41
+
             f.write(
                     file_control_record_type +
                     batch_count +
@@ -191,3 +198,6 @@ class AccountMove(models.Model):
             record.write({
                 'attachment_ids': [(0, 0, new_file_vals)]
             })
+
+        return self.env['account.payment']\
+            .action_register_payment()
