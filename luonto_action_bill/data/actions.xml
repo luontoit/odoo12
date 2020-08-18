@@ -11,7 +11,7 @@ for rec in env['account.move'].search([]):
     if rec.invoice_origin and not rec.v_bill_id and rec.state == 'posted':
         rec.action_post()
         for line in rec.v_bill_id.line_ids:
-            line.date_maturity = rec.invoice_date_due
+            line.write({'date_maturity' = rec.invoice_date_due})
 ]]>
         </field>
     </record>
