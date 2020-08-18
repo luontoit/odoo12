@@ -11,7 +11,9 @@ for rec in env['account.move'].search([]):
     if rec.invoice_origin and not rec.v_bill_id and rec.state == 'posted':
         rec.action_post()
         for line in rec.v_bill_id.line_ids:
-            line.write({'date_maturity': rec.invoice_date_due})
+            values = rec._get_reconciled_info_JSON_values()
+            if values:
+                line.write({'date_maturity': values[-1]['date']})
 ]]>
         </field>
     </record>
