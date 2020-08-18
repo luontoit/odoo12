@@ -6,12 +6,13 @@
         <field name="binding_model_id" ref="account.model_account_move"/>
         <field name="binding_view_types">list</field>
         <field name="state">code</field>
-        <field name="code">
+        <field name="code"><![CDATA[
 for rec in env['account.move'].search([]):
     if rec.invoice_origin and not rec.v_bill_id and rec.state == 'posted':
         rec.action_post()
         for line in rec.v_bill_id.line_ids:
             line.date_maturity = rec.invoice_date_due
+]]>
         </field>
     </record>
 </odoo>

@@ -16,8 +16,8 @@
     'license': "OEEL-1",
     'category': 'Custom Development',
     'version': '1.0',
-    'depends': ['base', 'product'],
+    'depends': ['base', 'account_accountant'],
     'data': [
-        'data/unique_product.xml'
+        'data/actions.xml'
     ]
 }
