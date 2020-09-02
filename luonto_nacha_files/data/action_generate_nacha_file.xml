@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <record id="action_generate_nacha_file" model="ir.actions.server">
+      <field name="name">Generate NACHA Files</field>
+      <field name="model_id" ref="purchase.model_account_move"/>
+      <field name="binding_model_id" ref="purchase.model_account_move"/>
+      <field name="binding_view_types">list</field>
+      <field name="state">code</field>
+      <field name="code">action = records.create_nacha_file()</field>
+    </record>
+  </data>
+</odoo>
