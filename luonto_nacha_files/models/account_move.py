@@ -26,7 +26,7 @@ class AccountMove(models.Model):
             priority_code = '01'
 
             company_banks = self.env.company.bank_ids\
-                .search([('partner_id.name', '=', self.env.company.partner_id.name)])
+                .search(['|', ('partner_id.name', '=', self.env.company.partner_id.name), ('partner_id.name', '=', self.env.company.partner_id.parent_id.name)])
             if not bool(company_banks) or not company_banks.aba_routing:
                 raise ValidationError("Your company does not have a bank account associated with it or the account information is incomplete.")
             company_banks = company_banks[0]
@@ -98,8 +98,9 @@ class AccountMove(models.Model):
             total_amount = 0
             for count, record in enumerate(self, start=1):
                 vendor_banks = record.partner_id.bank_ids\
-                    .search([('partner_id.name', '=', record.partner_id.name)])  # TODO: I should use env to search. Test that it gives the same result
-                if not bool(vendor_banks) or not vendor_banks.aba_routing or not vendor_banks.acc_number:   # TODO: Ensure one bank account
+                .search(['|', ('partner_id.name', '=', record.partner_id.name), ('partner_id.name', '=', record.partner_id.parent_id.name)], limit=1)
+
+                if not bool(vendor_banks) or not vendor_banks.aba_routing or not vendor_banks.acc_number:
                     raise ValidationError("Your vendor %s does not have a bank account associated with it or the account information is incomplete." % (record.partner_id.name))
                 vendor_banks = vendor_banks[0]
                 detail_record_type = '6'
