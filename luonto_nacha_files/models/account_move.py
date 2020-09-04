@@ -9,6 +9,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime
 
+
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
@@ -32,6 +33,7 @@ class AccountMove(models.Model):
             company_banks = company_banks[0]
             immediate_destination = ' ' + company_banks.aba_routing[:9]     # PNC bank transit/routing number preceded by a blank space  # UPDATE: They prefer ACH ABA so needs to change in UI
             immediate_origin = immediate_destination                        # ACH ABA Number. Immediate destination repeated
+
             creation_date = datetime.now().strftime('%y%m%d')               # Date when the originator created the file  ** Time format was the opposite format in the sample file
             creation_time = datetime.now().strftime('%H%M')                 # Time when the originator created the file
             file_id = random.choice(string.ascii_uppercase)                 # A random uppercase letter to distinguish between files created on the same date.
@@ -202,3 +204,4 @@ class AccountMove(models.Model):
 
         return self.env['account.payment']\
             .action_register_payment()
+
