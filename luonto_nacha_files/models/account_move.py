@@ -1,5 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from datetime import datetime
 import base64
 import random
 import re
@@ -7,8 +8,6 @@ import string
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from datetime import datetime
-
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -47,7 +46,7 @@ class AccountMove(models.Model):
             f.write(
                     header_record_type +
                     priority_code +
-                    immediate_destination +        # ONHOLD: Need to put ACH ABA in UI
+                    immediate_destination +
                     immediate_origin +
                     creation_date +
                     creation_time +
@@ -67,7 +66,7 @@ class AccountMove(models.Model):
             company_name = 'LUONTO FURNITURE'.rjust(16)
             company_discretionary_data = ' ' * 20
             vat = re.sub("[^0-9]", "", self.env.company.vat) if self.env.company.vat else ''
-            company_identification = '1' + vat[:9]                      # TAX ID – res.company vat field. Should be 9 digits and no hiphen
+            company_identification = '2' + vat[:9]
             standard_entry_class_code = 'CCD'
             company_entry_description = 'VENDOR PMT'.rjust(10)
             company_descriptive_date = datetime.now().strftime('%y%m%d')
@@ -115,7 +114,7 @@ class AccountMove(models.Model):
                 total_amount += int(amount)
                 individual_number = str(record.partner_id.id).rjust(15)
                 individual_name = record.partner_id.name.replace(' ','')[:22].rjust(22)
-                discretionary_data = ' '*2
+                discretionary_data = ' ' * 2
                 addenda = '0'
                 trace_number = receiving_dfi_id +  str(count).rjust(7, '0')     # ID + other 7 sequencially generated numbers
 
@@ -126,7 +125,7 @@ class AccountMove(models.Model):
                         check_digit +
                         dfi_account_number +
                         amount +
-                        individual_number +      # Check with client to see what ID they want for each vendor
+                        individual_number +
                         individual_name +
                         discretionary_data +
                         addenda +
@@ -204,4 +203,3 @@ class AccountMove(models.Model):
 
         return self.env['account.payment']\
             .action_register_payment()
-
