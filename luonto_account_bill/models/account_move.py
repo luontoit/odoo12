@@ -26,7 +26,7 @@ class AccountMove(models.Model):
                         'partner_id': self.invoice_user_id.partner_id.id,
                         'invoice_id': self.id,
                         'journal_id': self.env['account.journal'].search([('code', '=', 'BILL')]).id,
-                        'invoice_payment_term_id': self.invoice_user_id.partner_id.property_payment_term_id.id,
+                        'invoice_payment_term_id': self.invoice_user_id.partner_id.property_supplier_payment_term_id.id,
                         'state': 'draft',
                         'invoice_date': self.invoice_date,
                         'date': self.invoice_date
