@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="stock_picking_form_inherit_luonto_purchase" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.luonto_purchase</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']" position="after">
+                <button type="object" name="split_in_pack" string="Split In Packs" class="btn-primary"
+                        attrs="{'invisible': ['|', ('picking_type_code', '!=', 'incoming'), ('state', 'in', ('draft', 'done', 'cancel'))]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
