@@ -6,10 +6,10 @@ from odoo import models, api, fields
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    is_credit_limit_exceeded = fields.Boolean("Credit Limit Exceeded", store=True, compute="_compute_is_credit_limit_exceeded")
+    is_credit_limit_exceeded = fields.Boolean("Credit Limit Exceeded", store=False, compute="_compute_is_credit_limit_exceeded")
     total_quotes = fields.Float("Total Quotes", compute='_total_quotes', store=True)
     current_credit = fields.Float("Current Credit", compute='_current_credit', store=True)
-    available_credit = fields.Float("Available Credit", compute='_available_credit', store=True)
+    available_credit = fields.Float("Available Credit", compute='_available_credit', store=False)
 
     @api.depends('sale_order_ids', 'sale_order_ids.state', 'sale_order_ids.invoice_status', 'sale_order_ids.amount_total')
     def _total_quotes(self):
