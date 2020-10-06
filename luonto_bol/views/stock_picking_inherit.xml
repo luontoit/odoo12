@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="picking_form_inherit_luonto" model="ir.ui.view">
+        <field name="name">picking.form.inherit.luonto</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[2]" position="inside">
+                <group class="oe_right" colspan="2">
+                    <field name="total_volume" attrs="{'invisible': [('state', 'not in', ['done'])],'readonly': True}"/>
+                    <field name="total_seat" attrs="{'invisible': [('state', 'not in', ['done'])],'readonly': True}"/>
+                    <field name="total_qty" attrs="{'readonly': True}" invisible='1'/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
