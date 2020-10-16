@@ -26,7 +26,7 @@
     'category': 'Custom Development',
     'license': 'OEEL-1',
     'version': '1.0',
-    'depends': ['account', 'contacts'],
+    'depends': ['account_accountant', 'contacts'],
 
     'data': [
         'views/partner_views.xml',
