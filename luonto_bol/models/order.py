@@ -12,21 +12,24 @@ import re
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    freight_term = fields.Selection([('Prepaid','Prepaid'),('Collect','Collect'),('3rd Party','3rd Party')], string="Freight Change Terms", related="carrier_id.freight_term")
+
     def print_bol_report(self):
         render_pdf = self.env.ref('luonto_bol.action_sale_bol_report').render_qweb_pdf(res_ids=self.ids)[0]
         pdf = base64.b64encode(render_pdf)
         for rec in self:
-            attach_vals = {'name':re.sub(r'\W+', '', rec.name) + '.pdf',
-                'type':'binary',
-                'datas': pdf,
-                'res_model': 'sale.order',
-                'res_id': rec.id,
-                'description': "BOL report",}
+            for do in rec.picking_ids:
+                if do.state == 'done' and do.picking_type_id.code == 'outgoing' and do.include_bol == True:
+                    post_vals = {
+                        'body': ' Bill of lading for ' + re.sub(r'\W+', '', do.name),
+                        'attachments': [(re.sub(r'\W+', '', do.name) + '.pdf', render_pdf)],
+                    }
+                    do.message_post(**post_vals)
+                    do.include_bol = False
             post_vals = {
                 'body': ' Bill of lading for ' + re.sub(r'\W+', '', rec.name),
                 'attachments': [(re.sub(r'\W+', '', rec.name) + '.pdf', render_pdf)],
             }
-            self.env['ir.attachment'].create(attach_vals)
             rec.message_post(**post_vals)
             
         # return self.env.ref('luonto_bol.bol_report').report_action(self)
@@ -44,6 +47,7 @@ class ReportBOLSale(models.AbstractModel):
         carrier = set()
         shipping = set()
         invoice = set()
+        freight = set()
 
         stock = {'qty': 0, 'type':[], 'volume':0, 'seat':0, 'weight':0}
         for rec in orders:
@@ -53,13 +57,17 @@ class ReportBOLSale(models.AbstractModel):
             else:
                 carrier.add("")
             
+            if rec.freight_term:
+                freight.add(rec.freight_term)
+
             if rec.partner_shipping_id:
                 shipping.add(rec.partner_shipping_id)
+
             if rec.partner_invoice_id:
                 invoice.add(rec.partner_invoice_id)
 
             for do in rec.picking_ids:
-                if do.state == 'done':
+                if do.state == 'done' and do.picking_type_id.code == 'outgoing' and do.include_bol == True:
                     for move in do.move_line_ids_without_package:
                         if move.product_uom_id and move.product_uom_id.name not in stock['type']:
                             stock['type'].append(move.product_uom_id.name)
@@ -90,6 +98,7 @@ class ReportBOLSale(models.AbstractModel):
             'shipping': list(shipping),
             'invoice': list(invoice),
             'stock': stock,
+            'freight_term': list(freight)[0]
 
         }
 # ./source/odoo/odoo-bin --addons-path=./source/enterprise,./source/odoo/addons,./training13/prac -i luonto_bol -d luonto

@@ -61,6 +61,7 @@
                         <div style="width:50%;">
                             <h5>Freight Charge Terms:</h5>
                             <p>Freight Charges are prepaid unless marked otherwise</p>
+                            <t t-esc="freight_term"/>
                         </div>
                     </div>
                 </div>
@@ -89,13 +90,13 @@
                                 <t t-foreach="stock['type']" t-as="type"><span t-esc="type"/>,</t>
                             </td>
                             <td class="text-center">
-                                <span t-esc="stock['volume']"/>
+                                <span t-esc="stock['volume']" t-options='{"precision": 1, "widget": "float"}'/>
                             </td>
                             <td class="text-center">
                                 <span t-esc="stock['seat']"/>
                             </td>
                             <td class="text-center">
-                                <span t-esc="stock['weight']"/>
+                                <span t-esc="stock['weight']" t-options='{"precision": 1, "widget": "float"}'/>
                             </td>
                             
                         </tr>
