@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <report 
+            id="action_sale_bol_report"
+            string="BOL Report"
+            model="report.luonto_bol.bol_report" 
+            report_type="qweb-pdf"
+            file="luonto_bol.bol_report" 
+            name="luonto_bol.bol_report"
+        />    
+    </data>
+</odoo>

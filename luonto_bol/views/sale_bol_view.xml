@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <template id="bol_report">
+        <t t-call="web.html_container">
+        <t t-call="web.internal_layout">
+            <div class="page">
+                <div class="oe_structure"/>
+                <t t-esc="user.name"/>
+                <h4 style="text-align:center;">
+                    <b>BILL OF LADING - SHORT FORM - NOT NEGOTIABLE</b>
+                </h4>
+                <div style="width:100%;">
+                    <div class="row" style="padding-bottom:15px">
+                        <div style="width:50%;">
+                            <t><h5>Ship From</h5></t>
+                            <t t-esc="from_company" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                        </div>
+                        <div style="width:50%;">
+                            <t><h5>Bill Of Lading Number:</h5></t>
+                            BOL #: <t t-foreach="orders" t-as="order"><span t-esc="order.name"/>,</t>
+
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding-bottom:15px">
+                        <div style="width:50%;">
+                            <h5>Ship To</h5>
+                            <t t-if="len(shipping) > 0">
+                                <t t-esc="shipping[0]" 
+                                t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>    
+                            </t>
+                            <t t-else="">
+                                <t t-esc="to_company" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                            </t>
+                        </div>
+                        <div style="width:50%;">
+                            <h5>Carrier Information</h5>
+                            <p>Carrier Name: <t t-esc="carrier"/></p>
+                            <p>Customer PO#: <t t-foreach="orders" t-as="order"> <t t-if="order.client_order_ref"><span t-esc="order.client_order_ref"/>, </t></t></p>
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding-bottom:15px">
+                        <div style="width:50%;">
+                            <h5>Freight Charges Bill To:</h5>
+                            <t t-if="len(invoice) > 0">
+                                <t t-esc="invoice[0]" 
+                                t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>    
+                            </t>
+                            <t t-else="">
+                                <t t-esc="to_company" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                            </t>
+                        </div>
+                        <div style="width:50%;">
+                            <h5>Freight Charge Terms:</h5>
+                            <p>Freight Charges are prepaid unless marked otherwise</p>
+                            <t t-esc="freight_term"/>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-sm o_main_table">
+                    <thead>
+                        <tr>
+                            <t t-set="colspan" t-value="6"/>
+                            <th name="th_name" class="text-center"><span>Commodity Description</span></th>
+                            <th name="th_customer" class="text-center"><span>Qty</span></th>
+                            <th name="th_total" class="text-center"><span>Type</span></th>
+                            <th name="th_status" class="text-center"><span>Volume</span></th>
+                            <th name="th_type" class="text-center"><span>Seat Qty</span></th>
+                            <th name="th_type" class="text-center"><span>Weight</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">
+                                <span>Upholstery Leather Furniture (Sofas, Loveseat, Sectionals, Etc.)</span>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['qty']"/>
+                            </td>
+                            <td class="text-center">
+                                <t t-foreach="stock['type']" t-as="type"><span t-esc="type"/>,</t>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['volume']" t-options='{"precision": 1, "widget": "float"}'/>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['seat']"/>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['weight']" t-options='{"precision": 1, "widget": "float"}'/>
+                            </td>
+                            
+                        </tr>
+                        
+                    </tbody>
+                </table>
+
+        </div>
+    </t>
+    </t>
+    </template>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.actions.server" id="action_sale_bol_luonto">
+        <field name="name">Generate BOL for SOs</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order" />
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">
+records.print_bol_report()
+        </field>
+    </record>
+</odoo>
