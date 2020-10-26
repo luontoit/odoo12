@@ -88,6 +88,11 @@ class ReportBOLSale(models.AbstractModel):
             carrier = ""
         else:
             carrier = list(carrier)[0]
+
+        if len(freight) < 1:
+            freight = ""
+        else:
+            freight = list(freight)[0]
         return {
             # 'doc_ids': docs.ids,
             'doc_model': 'sale.order',
@@ -98,7 +103,6 @@ class ReportBOLSale(models.AbstractModel):
             'shipping': list(shipping),
             'invoice': list(invoice),
             'stock': stock,
-            'freight_term': list(freight)[0]
-
+            'freight_term': freight
         }
 # ./source/odoo/odoo-bin --addons-path=./source/enterprise,./source/odoo/addons,./training13/prac -i luonto_bol -d luonto
