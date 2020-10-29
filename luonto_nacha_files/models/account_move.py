@@ -40,7 +40,7 @@ class AccountMove(models.Model):
             blocking_factor = '10'                                          # Blocking factor defines the number of phisical records within a file
             format_code = '1'
             immediate_destination_name = 'PNC BANK'.rjust(23)
-            immediate_origin_name = 'LUONTO FURNITURE'.rjust(23)            # Name of the originating company
+            immediate_origin_name = 'LUONTO FURNITURE'.rjust(23)            # Name of the originating company
             reference_code = ' ' * 8                                        # Blanks fill this field
 
             f.write(
@@ -63,7 +63,7 @@ class AccountMove(models.Model):
             # Company/Batch Header Record / 5 RECORDS
             company_record_type = '5'
             service_class_code = '200'
-            company_name = 'LUONTO FURNITURE'.rjust(16)
+            company_name = 'LUONTO FURNITURE'.rjust(16)
             company_discretionary_data = ' ' * 20
             vat = re.sub("[^0-9]", "", self.env.company.vat) if self.env.company.vat else ''
             company_identification = '2' + vat[:9]
@@ -184,6 +184,7 @@ class AccountMove(models.Model):
 
         with open('file.txt', 'rb') as f:
             file = f.read()
+            print(file)
             f.close()
 
 
