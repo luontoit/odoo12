@@ -1,0 +1,86 @@
+<odoo>
+    <data>
+        <record id="view_auto_send_report_config_search" model="ir.ui.view">
+            <field name="name">auto_send_report.config search</field>
+            <field name="model">auto_send_report.config</field>
+            <field name="arch" type="xml">
+                <search string="Scheduled Pivot Reports search view">
+                    <field name="name" string="Name"/>
+                    <field name="recipient_ids" string="Recipients"/>
+                    <field name="filter_id" string="User-defined Filter"/>
+                    <field name="company_id" string="Company"/>
+                    <field name="model_id" string="Model"/>
+                    <field name="user_id" string="Scheduler User"/>
+                    <filter name="active" string="Archived" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+        <record id="view_auto_send_report_config_tree" model="ir.ui.view">
+            <field name="name">auto_send_report.config tree</field>
+            <field name="model">auto_send_report.config</field>
+            <field name="arch" type="xml">
+                <tree string="Scheduled Pivot Reports tree view">
+                    <field name="name"/>
+                    <field name="model_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="form_auto_send_report_config_form" model="ir.ui.view">
+            <field name="name">auto_send_report.config form</field>
+            <field name="model">auto_send_report.config</field>
+            <field name="arch" type="xml">
+                <form string="Scheduled Pivot Reports form view">
+                    <header>
+                        <button name="action_send" string="Send Manually" type="object"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="expense_button_box">
+                            <button name="toggle_active"
+                                    type="object"
+                                    confirm="Are you sure that you want to archive this record?"
+                                    class="oe_stat_button"
+                                    icon="fa-archive">
+                                <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Report to Schedule">
+                                <field name="model_id"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="filter_id" options="{'no_create':true}" domain="[('model_id', '=', model_id), ('context', 'ilike', '%pivot%')]"/>
+                                <field name="recipient_ids" widget="many2many_tags" context="{'pivot_filter_id': filter_id}" options="{'no_create':true,'no_open':true,'no_edit':true}"/>
+                            </group>
+                            <group string="Scheduler">
+                                <field name="user_id"/>
+                                <label for="interval_number" string="Execute Every"/>
+                                <div>
+                                    <field name="interval_number" class="oe_inline"/>
+                                    <field name="interval_type" class="oe_inline"/>
+                                </div>
+                                <field name="numbercall"/>
+                                <field name="priority"/>
+                                <field name="doall"/>
+                                <field name="cron_id" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_auto_send_report_config" model="ir.actions.act_window">
+            <field name="name">Scheduled Pivot Reports</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">auto_send_report.config</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="menu_auto_send_report_config" name="Scheduled Pivot Reports" parent="base.menu_automation"
+                  action="action_auto_send_report_config" sequence="3"/>
+    </data>
+</odoo>

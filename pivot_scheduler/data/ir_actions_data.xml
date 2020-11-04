@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_server_scheduled_pivot_reports_send_manually" model="ir.actions.server">
+            <field name="name">Send Manually</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_auto_send_report_config" />
+            <field name="binding_model_id" ref="model_auto_send_report_config" />
+            <field name="state">code</field>
+            <field name="code">records.action_send()</field>
+        </record>
+    </data>
+</odoo>
