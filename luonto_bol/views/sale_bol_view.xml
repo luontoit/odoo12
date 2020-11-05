@@ -9,7 +9,7 @@
                 <h4 style="text-align:center;">
                     <b>BILL OF LADING - SHORT FORM - NOT NEGOTIABLE</b>
                 </h4>
-                <div style="width:100%;">
+                <div style="width:100%; font-size:14px">
                     <div class="row" style="padding-bottom:15px">
                         <div style="width:50%;">
                             <t><h5>Ship From</h5></t>
@@ -103,6 +103,63 @@
                         
                     </tbody>
                 </table>
+                
+
+                <table style="font-size: 12px; border-collapse: collapse;">
+                    <tr>
+                        <th colspan="4" class="text-center bol_col">Note: Liability limitation for loss or damage in this shipment in this shipment may be applicable. See 49 USC 14706(c)(1)(A) and (B).</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="bol_col" >
+                            <div>Received, subject to individually determined rates or contracts 
+                            that have been agreed upon in writing between the carrier and shipper,
+                            if applicable, otherwise to the rates, classifications, and rules that 
+                            have been established by the carrier and are available to the shipper, 
+                            on request, and to all applicable state and federal regulations.</div>
+                        </td>
+                        <td colspan="2" class="bol_col" >
+                            <p> The carrier shall not make delivery of this shipment without
+                                payments of charges and all other lawful fees.</p>
+                                <span><strong>Shipper Signature </strong> <div class="underline"/></span>
+
+                        </td>
+                    </tr>
+                    <tr > 
+                        <td colspan="1" class="bol_col" style="width: 35%">
+                            <span><strong>Shipper Signature/Date</strong></span>
+                                <div class="underline"/>
+                                <p>This is to certify that the above named materiales are properly 
+                                classified, packaged, marked, and labeled, and are in proper condition 
+                                for transportation according to the applicable regulations of the DOT.</p>
+                        </td>
+                        <td colspan="1" class="bol_col" style=" width: 15%">
+                            <span><strong>Trailer Loaded</strong></span>
+                            <div><input type="checkbox" checked="1"/> By shipper</div>
+                            <div><input type="checkbox"/> By driver</div>
+                        </td>
+                        <td colspan="1" class="bol_col" style="width: 20%">
+                            <span><strong>Freight Counted:</strong></span>
+                            <div><input type="checkbox" /> By shipper</div>
+                            <div><input type="checkbox"/> By driver/pallets said to contain</div>
+                            <div><input type="checkbox" checked="1"/> By driver/pieces</div>
+                            
+                        </td>
+                        <td colspan="1" class="bol_col" style="width: 30%">
+                            <span><strong>Carrier Signature/Pickup Date</strong></span>
+                                <div class="underline"/>
+                                <div>Carrier acknowledges receipt of packages and required placards. 
+                                Carrier certifies emergency response information was made available 
+                                and/or carrier has the DOT emergency response guidebook or equivalent
+                                 documentation in the vehicle. Property described above received in good 
+                                 order, except as noted.</div>
+                        </td>
+                    </tr>
+
+
+                </table>
+
+                 
+
 
         </div>
     </t>

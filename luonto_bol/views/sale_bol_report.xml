@@ -8,6 +8,13 @@
             report_type="qweb-pdf"
             file="luonto_bol.bol_report" 
             name="luonto_bol.bol_report"
-        />    
+        /> 
+
+        <template id="bol_assets_common_luonto" name="Luonto BOL Assets" inherit_id="web.report_assets_common">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" type="text/scss" href="/luonto_bol/static/src/scss/bol_styling.scss"/>
+            </xpath>
+        </template>
+
     </data>
 </odoo>
