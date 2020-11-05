@@ -42,7 +42,16 @@ class ReportBOLSale(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         orders = self.env['sale.order'].browse(docids)
 
-        transfer = set()
+        recent_date = self.env['stock.picking'].search([('sale_id','in',docids),('state','=','done'),('picking_type_id.code','=','outgoing'),('include_bol','=',True)], order="date_done DESC", limit=1).date_done
+        # recent_date = datetime.datetime.strftime(recent_date, '%Y-%m-%d')
+        # recent_date = datetime.datetime.strptime(recent_date, '%Y-%m-%d')
+        range_date = recent_date - datetime.timedelta(days=5)
+        range_date = datetime.datetime.strftime(range_date, '%Y-%m-%d')
+        range_date = datetime.datetime.strptime(range_date, '%Y-%m-%d')
+        
+
+        print(recent_date, range_date,'\n\n\n')
+        # transfer = set()
         company = set()
         carrier = set()
         shipping = set()
@@ -68,21 +77,21 @@ class ReportBOLSale(models.AbstractModel):
 
             for do in rec.picking_ids:
                 if do.state == 'done' and do.picking_type_id.code == 'outgoing' and do.include_bol == True:
-                    for move in do.move_line_ids_without_package:
-                        if move.product_uom_id and move.product_uom_id.name not in stock['type']:
-                            stock['type'].append(move.product_uom_id.name)
-                    transfer.add(datetime.datetime.strftime(do.date_done, '%Y-%m-%d'))
-                    stock['qty'] += do.total_qty
-                    stock['volume'] += do.total_volume
-                    stock['seat'] += do.total_seat
-                    stock['weight'] += do.weight
+                    if do.date_done >= range_date and do.date_done <= recent_date:
+                        for move in do.move_line_ids_without_package:
+                            if move.product_uom_id and move.product_uom_id.name not in stock['type']:
+                                stock['type'].append(move.product_uom_id.name)
+                        # transfer.add(datetime.datetime.strftime(do.date_done, '%Y-%m-%d'))
+                        stock['qty'] += do.total_qty
+                        stock['volume'] += do.total_volume
+                        stock['seat'] += do.total_seat
+                        stock['weight'] += do.weight
+                    else:
+                        raise UserError(_("Effective Delivery Order Date is not in the same day"))
 
         
         if not len(company) == 1 or not len(carrier) <= 1:
             raise UserError(_("Sale orders must have the same partner_id and carrier_id."))
-
-        if not len(transfer) == 1:
-            raise UserError(_("Effective Delivery Order Date is not in the same day"))
         
         if len(carrier) < 1:
             carrier = ""
