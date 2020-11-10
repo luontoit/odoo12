@@ -18,10 +18,11 @@
     'data': [
         'data/action_bol_report.xml',
         'views/sale_bol_report.xml',
+        'views/internal_layout_inherit.xml',
         'views/sale_bol_view.xml',
         'views/stock_picking_inherit.xml',
         'views/delivery_carrier_inherit.xml',
-        'views/sale_order_form_inherit.xml'
+        'views/sale_order_form_inherit.xml',
 
     ],
 
