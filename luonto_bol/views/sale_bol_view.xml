@@ -15,38 +15,51 @@
                 <table style="font-size: 16px; border-collapse: collapse;width:100%; margin-bottom:10px;" >
 
                     <tr>
-                        <td colspan="1" class="bol_col" style="width:50%;" >
+                        <td colspan="1" class="bol_col" style="width:50%; font-size: 12px" >
                             <t><h5 class="bol-head"><strong>Ship From:</strong></h5></t>
                             <t t-esc="from_company" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
                                 &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
                         </td>
-                        <td colspan="1" class="bol_col" style="width:50%;" >
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px" >
                             <t><h5 class="bol-head"><strong>Bill Of Lading Number:</strong></h5></t>
                             BOL #: <t t-foreach="orders" t-as="order"><span t-esc="order.name"/>,</t>
 
                         </td>
                     </tr>
                     <tr > 
-                        <td colspan="1" class="bol_col" style="width:50%;">
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
                             <h5 class="bol-head"><strong>Ship To:</strong></h5>
                                 <t t-esc="shipping[0]" 
                                 t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
                                 &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>    
                         </td>
-                        <td colspan="1" class="bol_col" style="width:50%;">
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
                             <h5 class="bol-head"><strong>Carrier Information:</strong></h5>
                             <p>Carrier Name: <t t-esc="carrier"/></p>
                             <p>Customer PO#: <t t-foreach="orders" t-as="order"> <t t-if="order.client_order_ref"><span t-esc="order.client_order_ref"/>, </t></t></p>
                         </td>
                     </tr > 
                     <tr>
-                        <td colspan="1" class="bol_col" style="width:50%;">
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
                             <h5 class="bol-head"><strong>Freight Charges Bill To:</strong></h5>
-                                <t t-esc="invoice[0]" 
-                                t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
-                                &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>    
+                                <t t-if="freight_term == 'Collect'">
+                                    <t t-esc="invoice[0]" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                </t>
+                                <t t-if="freight_term == 'Prepaid'">
+                                    <t t-esc="from_company" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                </t>
+                                <t t-if="freight_term == '3rd Party' and third_party">
+                                    <t t-esc="third_party" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                </t>
+
                         </td>
-                        <td colspan="1" class="bol_col" style="width:50%;" >
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px" >
                             <h5 class="bol-head"><strong>Freight Charge Terms:</strong></h5>
                             <p>Freight Charges are prepaid unless marked otherwise</p>
                             <strong>Charge Terms: </strong><t t-esc="freight_term"/>
@@ -56,9 +69,8 @@
 
                 </table>
                 
-
-                <table class="table table-sm o_main_table">
-                    <thead>
+                <table class="table table-sm o_main_table" >
+                    <thead style="border:1px solid lightgray">
                         <tr>
                             <t t-set="colspan" t-value="6"/>
                             <th name="th_name" class="text-center"><span>Commodity Description</span></th>
@@ -69,7 +81,7 @@
                             <th name="th_type" class="text-center"><span>Weight</span></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody style="border:1px solid lightgray" >
                         <tr>
                             <td class="text-center">
                                 <span>Upholstery Leather Furniture (Sofas, Loveseat, Sectionals, Etc.)</span>
@@ -91,6 +103,8 @@
                             </td>
                             
                         </tr>
+                        <tr style="height: 30px"><td colspan="6"></td></tr>
+                        <tr style="height: 30px"><td colspan="6"></td></tr>
                         
                     </tbody>
                 </table>
@@ -125,14 +139,14 @@
                         </td>
                         <td colspan="1" class="bol_col" style=" width: 15%">
                             <span><strong>Trailer Loaded</strong></span>
-                            <div><input type="checkbox" checked="1"/> By shipper</div>
+                            <div><input type="checkbox" /> By shipper</div>
                             <div><input type="checkbox"/> By driver</div>
                         </td>
                         <td colspan="1" class="bol_col" style="width: 20%">
                             <span><strong>Freight Counted:</strong></span>
                             <div><input type="checkbox" /> By shipper</div>
                             <div><input type="checkbox"/> By driver/pallets said to contain</div>
-                            <div><input type="checkbox" checked="1"/> By driver/pieces</div>
+                            <div><input type="checkbox" /> By driver/pieces</div>
                             
                         </td>
                         <td colspan="1" class="bol_col" style="width: 30%">

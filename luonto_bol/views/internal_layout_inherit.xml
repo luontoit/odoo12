@@ -25,7 +25,7 @@
                     <span t-esc="company.name"/>
                 </div>
                 <div class="col-2 offset-3 text-right">
-                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;" alt="Logo"/>
+                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;width:120px;" alt="Logo"/>
                     <ul class="list-inline">
                         <li class="list-inline-item"><span class="page"/></li>
                         <li class="list-inline-item">/</li>

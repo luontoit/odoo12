@@ -13,6 +13,7 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     freight_term = fields.Selection([('Prepaid','Prepaid'),('Collect','Collect'),('3rd Party','3rd Party')], string="Freight Change Terms", related="carrier_id.freight_term")
+    third_party_id = fields.Many2one('res.partner', string="3rd Party")
 
     def print_bol_report(self):
         render_pdf = self.env.ref('luonto_bol.action_sale_bol_report').render_qweb_pdf(res_ids=self.ids)[0]
@@ -52,9 +53,12 @@ class ReportBOLSale(models.AbstractModel):
         shipping = set()
         invoice = set()
         freight = set()
+        third_party = False
 
         stock = {'qty': 0, 'type':[], 'volume':0, 'seat':0, 'weight':0}
         for rec in orders:
+            if rec.third_party_id:
+                third_party = rec.third_party_id
             company.add(rec.partner_id)
             if rec.carrier_id and rec.carrier_id.company_name:
                 carrier.add(rec.carrier_id.company_name)
@@ -107,5 +111,6 @@ class ReportBOLSale(models.AbstractModel):
             'invoice': list(invoice),
             'stock': stock,
             'freight_term': freight,
-            'company':self.env.company
+            'company':self.env.company,
+            'third_party': third_party
         }
