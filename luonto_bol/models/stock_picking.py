@@ -35,12 +35,12 @@ class StockPicking(models.Model):
             
             for move in picking.move_line_ids_without_package:
                 if picking.state == 'done':
-                    if len(move.package_id) >= 1:
-                        package += len(move.package_id)
+                    if len(move.result_package_id) >= 1:
+                        package += len(move.result_package_id)
                     else:
                         package += move.qty_done
                 else:
-                    package += len(move.package_id)
+                    package += len(move.result_package_id)
 
             picking.total_volume = vol
             picking.total_qty = qty

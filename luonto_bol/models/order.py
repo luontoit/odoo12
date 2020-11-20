@@ -44,6 +44,9 @@ class ReportBOLSale(models.AbstractModel):
         orders = self.env['sale.order'].browse(docids)
 
         recent_date = self.env['stock.picking'].search([('sale_id','in',docids),('state','=','done'),('picking_type_id.code','=','outgoing'),('include_bol','=',True)], order="date_done DESC", limit=1).date_done
+        print(recent_date, '\n\n\n')
+        if not recent_date:
+            raise UserError(_("Effective Delivery Order Date is not in the same day"))
         range_date = recent_date - datetime.timedelta(days=5)
         range_date = datetime.datetime.strftime(range_date, '%Y-%m-%d')
         range_date = datetime.datetime.strptime(range_date, '%Y-%m-%d')
