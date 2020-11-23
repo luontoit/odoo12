@@ -19,7 +19,6 @@ class SaleOrder(models.Model):
         render_pdf = self.env.ref('luonto_bol.action_sale_bol_report').render_qweb_pdf(res_ids=self.ids)[0]
         pdf = base64.b64encode(render_pdf)
         filename = self.mapped('name')
-        print(filename,'\n\n\n')
         for rec in self:
             for do in rec.picking_ids:
                 if do.state == 'done' and do.picking_type_id.code == 'outgoing' and do.include_bol == True:
