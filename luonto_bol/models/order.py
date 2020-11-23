@@ -18,23 +18,23 @@ class SaleOrder(models.Model):
     def print_bol_report(self):
         render_pdf = self.env.ref('luonto_bol.action_sale_bol_report').render_qweb_pdf(res_ids=self.ids)[0]
         pdf = base64.b64encode(render_pdf)
+        filename = self.mapped('name')
+        print(filename,'\n\n\n')
         for rec in self:
             for do in rec.picking_ids:
                 if do.state == 'done' and do.picking_type_id.code == 'outgoing' and do.include_bol == True:
                     post_vals = {
-                        'body': ' Bill of lading for ' + re.sub(r'\W+', '', do.name),
-                        'attachments': [(re.sub(r'\W+', '', do.name) + '.pdf', render_pdf)],
+                        'body': ' Bill of lading for ' + ', '.join(filename),
+                        'attachments': [('BOL' + '_'.join(filename) + '.pdf', render_pdf)],
                     }
                     do.message_post(**post_vals)
                     do.include_bol = False
             post_vals = {
-                'body': ' Bill of lading for ' + re.sub(r'\W+', '', rec.name),
-                'attachments': [(re.sub(r'\W+', '', rec.name) + '.pdf', render_pdf)],
+                'body': ('Bill of lading for ' + ', '.join(filename)),
+                'attachments': [('BOL ' + '_'.join(filename) + '.pdf', render_pdf)],
             }
             rec.message_post(**post_vals)
             
-        # return self.env.ref('luonto_bol.bol_report').report_action(self)
-
 class ReportBOLSale(models.AbstractModel):
     
     _name = 'report.luonto_bol.bol_report'
@@ -58,7 +58,7 @@ class ReportBOLSale(models.AbstractModel):
         freight = set()
         third_party = False
 
-        stock = {'qty': 0, 'type':[], 'volume':0, 'seat':0, 'weight':0}
+        stock = {'qty': 0, 'type':[], 'volume':0, 'seat':0, 'weight':0, 'package':0}
         for rec in orders:
             if rec.third_party_id:
                 third_party = rec.third_party_id
@@ -87,6 +87,7 @@ class ReportBOLSale(models.AbstractModel):
                         stock['volume'] += do.total_volume
                         stock['seat'] += do.total_seat
                         stock['weight'] += do.weight
+                        stock['package'] += do.total_package
                     else:
                         raise UserError(_("Effective Delivery Order Date is not in the same day"))
 

@@ -22,7 +22,7 @@
                         </td>
                         <td colspan="1" class="bol_col" style="width:50%;font-size: 12px" >
                             <t><h5 class="bol-head"><strong>Bill Of Lading Number:</strong></h5></t>
-                            BOL #: <t t-foreach="orders" t-as="order"><span t-esc="order.name"/>,</t>
+                            BOL #: <t t-esc="', '.join(orders.mapped('name'))"/>
 
                         </td>
                     </tr>
@@ -36,6 +36,7 @@
                         <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
                             <h5 class="bol-head"><strong>Carrier Information:</strong></h5>
                             <p>Carrier Name: <t t-esc="carrier"/></p>
+                            
                             <p>Customer PO#: <t t-foreach="orders" t-as="order"> <t t-if="order.client_order_ref"><span t-esc="order.client_order_ref"/>, </t></t></p>
                         </td>
                     </tr > 
@@ -74,7 +75,7 @@
                         <tr>
                             <t t-set="colspan" t-value="6"/>
                             <th name="th_name" class="text-center"><span>Commodity Description</span></th>
-                            <th name="th_customer" class="text-center"><span>Qty</span></th>
+                            <th name="th_customer" class="text-center"><span>Package Qty</span></th>
                             <th name="th_total" class="text-center"><span>Type</span></th>
                             <th name="th_status" class="text-center"><span>Volume</span></th>
                             <th name="th_type" class="text-center"><span>Seat Qty</span></th>
@@ -87,10 +88,10 @@
                                 <span>Upholstery Leather Furniture (Sofas, Loveseat, Sectionals, Etc.)</span>
                             </td>
                             <td class="text-center">
-                                <span t-esc="stock['qty']"/>
+                                <span t-esc="stock['package']"/>
                             </td>
                             <td class="text-center">
-                                <t t-foreach="stock['type']" t-as="type"><span t-esc="type"/>,</t>
+                                <t t-esc="', '.join(stock['type'])" />
                             </td>
                             <td class="text-center">
                                 <span t-esc="stock['volume']" t-options='{"precision": 1, "widget": "float"}'/>
