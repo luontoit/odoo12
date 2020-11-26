@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="delivery_form_inherit_luonto" model="ir.ui.view">
+        <field name="name">delivery.form.inherit.luonto</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <field name="origin" position="after">
+                <field name="include_bol"/>
+            </field>
+            <!-- <xpath expr="//notebook/page[2]" position="inside">
+                <group class="oe_right" colspan="2">
+                    <field name="total_volume" attrs="{'readonly': True}"/>
+                    <field name="total_seat" attrs="{'readonly': True}"/>
+                    <field name="total_qty" attrs="{'readonly': True}"/>
+                    <field name="total_package" attrs="{'readonly': True}"/>
+                </group>
+            </xpath> -->
+        </field>
+    </record>
+    <record id="picking_form_inherit_luonto" model="ir.ui.view">
+        <field name="name">picking.form.inherit.luonto</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="delivery.view_picking_withcarrier_out_form"/>
+        <field name="arch" type="xml">
+            <group name="carrier_data" position="inside">
+                <label for="total_volume" string="Volume"/>
+                <div>
+                    <field name="total_volume" attrs="{'readonly': True}" class="oe_inline"/>
+                </div>
+                <label for="total_seat" string="Seat"/>
+                <div>
+                    <field name="total_seat" attrs="{'readonly': True}" class="oe_inline"/>
+                </div>
+                <label for="total_qty" string="Total Qty"/>
+                <div>
+                    <field name="total_qty" attrs="{'readonly': True}" class="oe_inline"/>
+                </div>
+                <label for="total_package" string="Package"/>
+                <div>
+                    <field name="total_package" attrs="{'readonly': True}" class="oe_inline"/>
+                </div>
+            </group>
+            
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <template id="bol_report">
+        <t t-call="web.html_container">
+        <!-- <t t-call="web.external_layout"> -->
+        <t t-call="luonto_bol.internal_layout_luonto">
+            <div class="page">
+                <!-- <div class="oe_structure"/> -->
+                <!-- <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;" alt="Logo"/> -->
+                <t t-esc="user.name"/>
+                <h4 style="text-align:center;">
+                    <b>BILL OF LADING - SHORT FORM - NOT NEGOTIABLE</b>
+                </h4>
+
+                <table style="font-size: 16px; border-collapse: collapse;width:100%; margin-bottom:10px;" >
+
+                    <tr>
+                        <td colspan="1" class="bol_col" style="width:50%; font-size: 12px" >
+                            <t><h5 class="bol-head"><strong>Ship From:</strong></h5></t>
+                            <t t-esc="from_company" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                        </td>
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px" >
+                            <t><h5 class="bol-head"><strong>Bill Of Lading Number:</strong></h5></t>
+                            BOL #: <t t-esc="', '.join(orders.mapped('name'))"/>
+
+                        </td>
+                    </tr>
+                    <tr > 
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
+                            <h5 class="bol-head"><strong>Ship To:</strong></h5>
+                                <t t-esc="shipping[0]" 
+                                t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>    
+                        </td>
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
+                            <h5 class="bol-head"><strong>Carrier Information:</strong></h5>
+                            <p>Carrier Name: <t t-esc="carrier"/></p>
+                            
+                            <p>Customer PO#: <t t-foreach="orders" t-as="order"> <t t-if="order.client_order_ref"><span t-esc="order.client_order_ref"/>, </t></t></p>
+                        </td>
+                    </tr > 
+                    <tr>
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px">
+                            <h5 class="bol-head"><strong>Freight Charges Bill To:</strong></h5>
+                                <t t-if="freight_term == 'Collect'">
+                                    <t t-esc="invoice[0]" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                </t>
+                                <t t-if="freight_term == 'Prepaid'">
+                                    <t t-esc="from_company" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                </t>
+                                <t t-if="freight_term == '3rd Party' and third_party">
+                                    <t t-esc="third_party" 
+                                    t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, 
+                                    &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True}"/>
+                                </t>
+
+                        </td>
+                        <td colspan="1" class="bol_col" style="width:50%;font-size: 12px" >
+                            <h5 class="bol-head"><strong>Freight Charge Terms:</strong></h5>
+                            <p>Freight Charges are prepaid unless marked otherwise</p>
+                            <strong>Charge Terms: </strong><t t-esc="freight_term"/>
+                        </td>
+
+                    </tr>
+
+                </table>
+                
+                <table class="table table-sm o_main_table" >
+                    <thead style="border:1px solid lightgray">
+                        <tr>
+                            <t t-set="colspan" t-value="6"/>
+                            <th name="th_name" class="text-center"><span>Commodity Description</span></th>
+                            <th name="th_customer" class="text-center"><span>Package Qty</span></th>
+                            <th name="th_total" class="text-center"><span>Type</span></th>
+                            <th name="th_status" class="text-center"><span>Volume</span></th>
+                            <th name="th_type" class="text-center"><span>Seat Qty</span></th>
+                            <th name="th_type" class="text-center"><span>Weight</span></th>
+                        </tr>
+                    </thead>
+                    <tbody style="border:1px solid lightgray" >
+                        <tr>
+                            <td class="text-center">
+                                <span>Upholstery Leather Furniture (Sofas, Loveseat, Sectionals, Etc.)</span>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['package']"/>
+                            </td>
+                            <td class="text-center">
+                                <t t-esc="', '.join(stock['type'])" />
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['volume']" t-options='{"precision": 1, "widget": "float"}'/>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['seat']"/>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="stock['weight']" t-options='{"precision": 1, "widget": "float"}'/>
+                            </td>
+                            
+                        </tr>
+                        <tr style="height: 30px"><td colspan="6"></td></tr>
+                        <tr style="height: 30px"><td colspan="6"></td></tr>
+                        
+                    </tbody>
+                </table>
+                
+
+                <table style="font-size: 12px; border-collapse: collapse;">
+                    <tr>
+                        <th colspan="4" class="text-center bol_col">Note: Liability limitation for loss or damage in this shipment in this shipment may be applicable. See 49 USC 14706(c)(1)(A) and (B).</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="bol_col" >
+                            <div>Received, subject to individually determined rates or contracts 
+                            that have been agreed upon in writing between the carrier and shipper,
+                            if applicable, otherwise to the rates, classifications, and rules that 
+                            have been established by the carrier and are available to the shipper, 
+                            on request, and to all applicable state and federal regulations.</div>
+                        </td>
+                        <td colspan="2" class="bol_col" >
+                            <p> The carrier shall not make delivery of this shipment without
+                                payments of charges and all other lawful fees.</p>
+                                <span><strong>Shipper Signature </strong> <div class="underline"/></span>
+
+                        </td>
+                    </tr>
+                    <tr > 
+                        <td colspan="1" class="bol_col" style="width: 35%">
+                            <span><strong>Shipper Signature/Date</strong></span>
+                                <div class="underline"/>
+                                <p>This is to certify that the above named materiales are properly 
+                                classified, packaged, marked, and labeled, and are in proper condition 
+                                for transportation according to the applicable regulations of the DOT.</p>
+                        </td>
+                        <td colspan="1" class="bol_col" style=" width: 15%">
+                            <span><strong>Trailer Loaded</strong></span>
+                            <div><input type="checkbox" /> By shipper</div>
+                            <div><input type="checkbox"/> By driver</div>
+                        </td>
+                        <td colspan="1" class="bol_col" style="width: 20%">
+                            <span><strong>Freight Counted:</strong></span>
+                            <div><input type="checkbox" /> By shipper</div>
+                            <div><input type="checkbox"/> By driver/pallets said to contain</div>
+                            <div><input type="checkbox" /> By driver/pieces</div>
+                            
+                        </td>
+                        <td colspan="1" class="bol_col" style="width: 30%">
+                            <span><strong>Carrier Signature/Pickup Date</strong></span>
+                                <div class="underline"/>
+                                <div>Carrier acknowledges receipt of packages and required placards. 
+                                Carrier certifies emergency response information was made available 
+                                and/or carrier has the DOT emergency response guidebook or equivalent
+                                 documentation in the vehicle. Property described above received in good 
+                                 order, except as noted.</div>
+                        </td>
+                    </tr>
+
+
+                </table>
+
+                 
+
+
+        </div>
+    </t>
+    </t>
+    </template>
+</odoo>
