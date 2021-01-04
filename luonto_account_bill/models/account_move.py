@@ -7,10 +7,21 @@ class AccountMove(models.Model):
     v_bill_id=fields.Many2one('account.move', string="Vendor Bill")
     invoice_id=fields.Many2one('account.move', string="Invoice Source")
 
+    def button_draft(self):
+        for record in self:
+            if record.v_bill_id and record.v_bill_id.state == "posted":
+                record.v_bill_id.button_draft()
+                record.v_bill_id.button_cancel()
+        super(AccountMove, self).button_draft()
+
     def action_invoice_paid(self):
-        if self.v_bill_id:
-            for line in self.v_bill_id.line_ids:
-                line.date_maturity = date.today()
+        for record in self:
+            if record.v_bill_id:
+                record.v_bill_id.write({'invoice_date_due': values[-1]['date']})
+                for line in record.v_bill_id.line_ids:
+                    values = record._get_reconciled_info_JSON_values()
+                    if values:
+                        line.write({'date_maturity': values[-1]['date']})
 
     def action_post(self):
         res = super(AccountMove, self).action_post()
