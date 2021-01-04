@@ -16,8 +16,9 @@ class AccountMove(models.Model):
 
     def action_invoice_paid(self):
         for record in self:
-            if self.v_bill_id:
-                for line in self.v_bill_id.line_ids:
+            if record.v_bill_id:
+                record.v_bill_id.write({'invoice_date_due': values[-1]['date']})
+                for line in record.v_bill_id.line_ids:
                     values = record._get_reconciled_info_JSON_values()
                     if values:
                         line.write({'date_maturity': values[-1]['date']})
