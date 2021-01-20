@@ -17,12 +17,12 @@ class AccountMove(models.Model):
     def action_invoice_paid(self):
         for record in self:
             if record.v_bill_id:
+                values = record._get_reconciled_info_JSON_values()
                 record.v_bill_id.write({'invoice_date_due': values[-1]['date']})
                 for line in record.v_bill_id.line_ids:
-                    values = record._get_reconciled_info_JSON_values()
                     if values:
                         line.write({'date_maturity': values[-1]['date']})
-
+                        
     def action_post(self):
         res = super(AccountMove, self).action_post()
         if self.partner_id.c_type and self.invoice_user_id and self.type == "out_invoice":
