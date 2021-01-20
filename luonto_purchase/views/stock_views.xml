@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='move_ids_without_package']" position="after">
                 <button type="object" name="split_in_pack" string="Split In Packs" class="btn-primary"
-                        attrs="{'invisible': ['|', ('picking_type_code', '!=', 'incoming'), ('state', 'in', ('draft', 'done', 'cancel'))]}"/>
+                        attrs="{'invisible': [ ('state', 'in', ('draft', 'done', 'cancel'))]}"/>
             </xpath>
         </field>
     </record>
