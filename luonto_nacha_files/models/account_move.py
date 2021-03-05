@@ -16,7 +16,7 @@ class AccountMove(models.Model):
 
         # Produce NACHA file only if all files are vendor bills, not customer invoices
         for record in self:
-            if record.type not in ('in_invoice', 'in_refund'):
+            if record.move_type not in ('in_invoice', 'in_refund'):
                 raise ValidationError("Invalid selection: Customer invoice selected. NACHA files can only be created for vendor bills")
 
 

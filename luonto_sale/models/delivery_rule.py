@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import UserError
 
 class PriceRule(models.Model):
     _inherit = 'delivery.price.rule'
 
-    variable = fields.Selection(selection_add=[('num_seats', 'Number of Seats')])
-    variable_factor = fields.Selection(selection_add=[('num_seats', 'Number of Seats')])
+    variable = fields.Selection(selection_add=[('num_seats', 'Number of Seats')], ondelete= { 'num_seats': 'set default'} )
+    variable_factor = fields.Selection(selection_add=[('num_seats', 'Number of Seats')], ondelete= { 'num_seats': 'set default'} )
 
 class ProviderGrid(models.Model):
     _inherit = 'delivery.carrier'
