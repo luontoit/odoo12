@@ -11,7 +11,7 @@
                 <field name="label"/>
                 <field name="qty"/>
                 <field name="product_uom_id" options="{'no_open': True, 'no_create': True}" groups="uom.group_uom"/>
-                <field name="company_id" group="base.group_multi_company"/>
+                <field name="company_id" groups="base.group_multi_company"/>
                 <field name="weight"/>
                 <field name="volume"/>
             </tree>
@@ -42,7 +42,7 @@
                             <field name="weight"/>
                             <field name="volume"/>
                             <field name="barcode"/>
-                            <field name="company_id" group="base.group_multi_company"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
                 </sheet>

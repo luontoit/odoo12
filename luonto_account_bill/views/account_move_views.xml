@@ -5,9 +5,9 @@
       <field name="model">account.move</field>
       <field name="inherit_id" ref="account.view_move_form"/>
       <field name="arch" type="xml">
-        <xpath expr="//sheet[1]/group[1]/group[@id='header_right_group']/field[@name='company_id']" position="after">
-          <field name="v_bill_id" attrs="{'invisible' : ['|', ('state','=','draft'), ('type', '!=', 'out_invoice')], 'readonly' :  [('state','=','posted')]}"/>
-          <field name="invoice_id" attrs="{'invisible' : [('type', '!=', 'in_invoice')], 'readonly' :  [('state','=','posted')]}"/>
+        <xpath expr="//sheet[1]/group[1]/group[@id='header_right_group']/div[@name='journal_div']" position="after">
+          <field name="v_bill_id" attrs="{'invisible' : ['|', ('state','=','draft'), ('move_type', '!=', 'out_invoice')], 'readonly' :  [('state','=','posted')]}"/>
+          <field name="invoice_id" attrs="{'invisible' : [('move_type', '!=', 'in_invoice')], 'readonly' :  [('state','=','posted')]}"/>
         </xpath>
       </field>
     </record>

@@ -25,7 +25,7 @@ class AccountMove(models.Model):
                         
     def action_post(self):
         res = super(AccountMove, self).action_post()
-        if self.partner_id.c_type and self.invoice_user_id and self.type == "out_invoice":
+        if self.partner_id.c_type and self.invoice_user_id and self.move_type == "out_invoice":
             sum = 0
             for line in self.invoice_line_ids:
                 if line.product_id.type == "product":
@@ -33,7 +33,7 @@ class AccountMove(models.Model):
             if sum > 0:
                 move_dic = [
                     {
-                        'type': 'in_invoice',
+                        'move_type': 'in_invoice',
                         'partner_id': self.invoice_user_id.partner_id.id,
                         'invoice_id': self.id,
                         'journal_id': self.env['account.journal'].search([('code', '=', 'BILL')]).id,
