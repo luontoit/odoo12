@@ -202,5 +202,5 @@ class AccountMove(models.Model):
                 'attachment_ids': [(0, 0, new_file_vals)]
             })
 
-        return self.env['account.payment.register']\
-            .action_create_payments()
+        return self.env['account.move']\
+            .action_register_payment()
