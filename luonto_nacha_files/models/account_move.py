@@ -201,6 +201,5 @@ class AccountMove(models.Model):
             record.write({
                 'attachment_ids': [(0, 0, new_file_vals)]
             })
-
-        return self.env['account.move']\
-            .action_register_payment()
+        
+        return self.action_register_payment()
