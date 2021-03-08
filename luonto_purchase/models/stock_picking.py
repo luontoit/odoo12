@@ -57,7 +57,9 @@ class StockPicking(models.Model):
             self.move_line_ids.unlink()
         split = False
         for move in self.move_lines:
+            print('move...', move)
             if int(move.product_id.x_studio_package_qty) > 1 and move.product_id.pt_packaging_ids:
+                print('split????', split)
                 split = True
                 if len(move.product_id.pt_packaging_ids) != int(move.product_id.x_studio_package_qty):
                     raise UserError(_("Package Quantity does not match for product template %s." % (move.product_id.name)))
