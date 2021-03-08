@@ -5,6 +5,9 @@ from odoo import  api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero, float_compare, float_round
 
+import logging
+_logger = logging.getLogger(__name__)
+
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
@@ -57,9 +60,9 @@ class StockPicking(models.Model):
             self.move_line_ids.unlink()
         split = False
         for move in self.move_lines:
-            print('move...', move)
+            _logger.debug('move...', move)
             if int(move.product_id.x_studio_package_qty) > 1 and move.product_id.pt_packaging_ids:
-                print('split????', split)
+                _logger.debug('split????', split)
                 split = True
                 if len(move.product_id.pt_packaging_ids) != int(move.product_id.x_studio_package_qty):
                     raise UserError(_("Package Quantity does not match for product template %s." % (move.product_id.name)))
