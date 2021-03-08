@@ -55,6 +55,7 @@ class StockPicking(models.Model):
             return super(StockPicking, self)._put_in_pack(move_line_ids)
 
     def split_in_pack(self):
+        _logger.info('------------', self.move_lines)
         StockMoveLine = self.env['stock.move.line']
         if self.move_line_ids:
             self.move_line_ids.unlink()
