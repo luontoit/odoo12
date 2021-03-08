@@ -75,4 +75,4 @@ class StockPicking(models.Model):
                             'qty_done': packaging.qty
                         })
                 move._recompute_state()
-        return super(StockPicking, self.with_context({'split_packages': split}))._put_in_pack()
+        return super(StockPicking, self.with_context({'split_packages': split})).action_put_in_pack()
