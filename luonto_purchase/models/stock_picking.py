@@ -64,6 +64,10 @@ class StockPicking(models.Model):
         for move in self.move_lines:
             _logger.info('move..........')
             _logger.info(move)
+            _logger.info('package qty ---------------')
+            _logger.info(move.product_id.x_studio_package_qty)
+            _logger.info('packaging ids-----------------')
+            _logger.info(move.product_id.pt_packaging_ids)
             if int(move.product_id.x_studio_package_qty) > 1 and move.product_id.pt_packaging_ids:
                 _logger.info('split????????')
                 _logger.info(split)
