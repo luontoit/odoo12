@@ -55,15 +55,18 @@ class StockPicking(models.Model):
             return super(StockPicking, self)._put_in_pack(move_line_ids)
 
     def split_in_pack(self):
-        _logger.info('------------', self.move_lines)
+        _logger.info('------------')
+        _logger.info(self.move_lines)
         StockMoveLine = self.env['stock.move.line']
         if self.move_line_ids:
             self.move_line_ids.unlink()
         split = False
         for move in self.move_lines:
-            _logger.info('move...', move)
+            _logger.info('move..........')
+            _logger.info(move)
             if int(move.product_id.x_studio_package_qty) > 1 and move.product_id.pt_packaging_ids:
-                _logger.info('split????', split)
+                _logger.info('split????????')
+                _logger.info(split)
                 split = True
                 if len(move.product_id.pt_packaging_ids) != int(move.product_id.x_studio_package_qty):
                     raise UserError(_("Package Quantity does not match for product template %s." % (move.product_id.name)))
