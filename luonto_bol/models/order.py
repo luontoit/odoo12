@@ -16,7 +16,7 @@ class SaleOrder(models.Model):
     third_party_id = fields.Many2one('res.partner', string="3rd Party")
 
     def print_bol_report(self):
-        render_pdf = self.env.ref('luonto_bol.action_sale_bol_report').render_qweb_pdf(res_ids=self.ids)[0]
+        render_pdf = self.env.ref('luonto_bol.action_sale_bol_report')._render_qweb_pdf(res_ids=self.ids)[0]
         pdf = base64.b64encode(render_pdf)
         filename = self.mapped('name')
         for rec in self:
