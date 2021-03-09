@@ -5,11 +5,6 @@ from odoo import  api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero, float_compare, float_round
 
-from odoo.tools.profiler import profile
-
-import logging
-_logger = logging.getLogger(__name__)
-
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
@@ -55,21 +50,13 @@ class StockPicking(models.Model):
             return package
         else:
             return super(StockPicking, self)._put_in_pack(move_line_ids)
-    @profile
+    
     def split_in_pack(self):
-        _logger.info('------------')
-        _logger.info(self.move_lines)
         StockMoveLine = self.env['stock.move.line']
         if self.move_line_ids:
             self.move_line_ids.unlink()
         split = False
         for move in self.move_lines:
-            _logger.info('move..........')
-            _logger.info(move)
-            _logger.info('package qty ---------------')
-            _logger.info(move.product_id.x_studio_package_qty)
-            _logger.info('packaging ids-----------------')
-            _logger.info(move.product_id.pt_packaging_ids)
             if int(move.product_id.x_studio_package_qty) > 1 and move.product_id.pt_packaging_ids:
                 split = True
                 if len(move.product_id.pt_packaging_ids) != int(move.product_id.x_studio_package_qty):
